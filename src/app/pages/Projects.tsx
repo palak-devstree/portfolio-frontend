@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { projectsAPI } from '../../lib/api';
 import { ProjectCard } from '../components/ProjectCard';
 import { LoadingPage } from '../components/LoadingSpinner';
-import { ErrorMessage } from '../components/ErrorMessage';
+import { fallbackProjects } from '../../lib/fallbackData';
 
 interface Project {
   id: number;
@@ -15,18 +15,19 @@ interface Project {
 }
 
 export function Projects() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>(fallbackProjects);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         const res = await projectsAPI.list();
-        setProjects(res.data);
+        if (res.data && res.data.length > 0) {
+          setProjects(res.data);
+        }
       } catch (err) {
-        setError('Failed to load projects');
-        console.error(err);
+        // API not configured or unreachable — fallback data is already set
+        console.info('API unavailable, using fallback projects');
       } finally {
         setLoading(false);
       }
@@ -36,10 +37,6 @@ export function Projects() {
 
   if (loading) {
     return <LoadingPage message="Loading projects..." />;
-  }
-
-  if (error) {
-    return <ErrorMessage message={error} onRetry={() => window.location.reload()} />;
   }
 
   return (
@@ -53,25 +50,19 @@ export function Projects() {
         </p>
       </div>
 
-      {projects.length === 0 ? (
-        <div className="text-center py-20" style={{ color: '#757584' }}>
-          No projects yet
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              name={project.title}
-              description={project.description}
-              stack={project.tech_stack}
-              status={project.status as any}
-              github={project.github_url || '#'}
-              details={project.live_url || '#'}
-            />
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {projects.map((project) => (
+          <ProjectCard
+            key={project.id}
+            name={project.title}
+            description={project.description}
+            stack={project.tech_stack}
+            status={project.status as any}
+            github={project.github_url || ''}
+            details={project.live_url || ''}
+          />
+        ))}
+      </div>
     </div>
   );
 }

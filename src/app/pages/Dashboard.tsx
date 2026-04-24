@@ -4,8 +4,8 @@ import { DashboardCard } from '../components/DashboardCard';
 import { LogPanel } from '../components/LogPanel';
 import { ConsoleInput } from '../components/ConsoleInput';
 import { LoadingPage } from '../components/LoadingSpinner';
-import { ErrorMessage } from '../components/ErrorMessage';
 import { dashboardAPI, profileAPI } from '../../lib/api';
+import { fallbackDashboard, fallbackProfile } from '../../lib/fallbackData';
 
 interface DashboardData {
   projects_count: number;
@@ -26,8 +26,8 @@ interface ProfileData {
 }
 
 export function Dashboard() {
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [dashboard, setDashboard] = useState<DashboardData>(fallbackDashboard);
+  const [profile, setProfile] = useState<ProfileData>(fallbackProfile);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,7 +40,8 @@ export function Dashboard() {
         setDashboard(dashboardRes.data);
         setProfile(profileRes.data);
       } catch (error) {
-        console.error('Failed to fetch data:', error);
+        // API not configured or unreachable — fallback data is already set
+        console.info('API unavailable, using fallback data');
       } finally {
         setLoading(false);
       }
@@ -50,10 +51,6 @@ export function Dashboard() {
 
   if (loading) {
     return <LoadingPage message="Loading dashboard..." />;
-  }
-
-  if (!dashboard || !profile) {
-    return <ErrorMessage message="Failed to load dashboard data" onRetry={() => window.location.reload()} />;
   }
 
   return (
@@ -69,7 +66,7 @@ export function Dashboard() {
               letterSpacing: '-0.02em',
             }}
           >
-            {profile?.full_name || 'AI Backend Engineer Portfolio'}
+            {profile.full_name}
           </h1>
           <p 
             className="mb-6"
@@ -79,7 +76,7 @@ export function Dashboard() {
               maxWidth: '600px',
             }}
           >
-            {profile?.tagline || 'Building backend systems, AI services, and production-ready architectures.'}
+            {profile.tagline}
           </p>
         </div>
 
@@ -91,25 +88,25 @@ export function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <DashboardCard
           title="Projects"
-          value={dashboard?.projects_count.toString() || '0'}
+          value={dashboard.projects_count.toString()}
           icon={<Code className="w-5 h-5" />}
           subtitle="active repositories"
         />
         <DashboardCard
           title="Blog Posts"
-          value={dashboard?.blog_posts_count.toString() || '0'}
+          value={dashboard.blog_posts_count.toString()}
           icon={<FileText className="w-5 h-5" />}
           subtitle="technical articles"
         />
         <DashboardCard
           title="System Designs"
-          value={dashboard?.system_designs_count.toString() || '0'}
+          value={dashboard.system_designs_count.toString()}
           icon={<Layers className="w-5 h-5" />}
           subtitle="architecture diagrams"
         />
         <DashboardCard
           title="Uptime"
-          value={`${dashboard?.uptime_percentage.toFixed(1) || '99.9'}%`}
+          value={`${dashboard.uptime_percentage.toFixed(1)}%`}
           icon={<Activity className="w-5 h-5" />}
           subtitle="system availability"
         />
@@ -134,31 +131,19 @@ export function Dashboard() {
           <div>
             <h4 className="mb-2" style={{ color: '#e2e2e8' }}>Learning</h4>
             <ul className="space-y-1 font-mono" style={{ fontSize: '13px', color: '#757584' }}>
-              {profile?.current_learning && profile.current_learning.length > 0 ? (
-                profile.current_learning.map((item, i) => <li key={i}>• {item}</li>)
-              ) : (
-                <li>• No items yet</li>
-              )}
+              {profile.current_learning.map((item, i) => <li key={i}>• {item}</li>)}
             </ul>
           </div>
           <div>
             <h4 className="mb-2" style={{ color: '#e2e2e8' }}>Building</h4>
             <ul className="space-y-1 font-mono" style={{ fontSize: '13px', color: '#757584' }}>
-              {profile?.current_building && profile.current_building.length > 0 ? (
-                profile.current_building.map((item, i) => <li key={i}>• {item}</li>)
-              ) : (
-                <li>• No items yet</li>
-              )}
+              {profile.current_building.map((item, i) => <li key={i}>• {item}</li>)}
             </ul>
           </div>
           <div>
             <h4 className="mb-2" style={{ color: '#e2e2e8' }}>Exploring</h4>
             <ul className="space-y-1 font-mono" style={{ fontSize: '13px', color: '#757584' }}>
-              {profile?.current_exploring && profile.current_exploring.length > 0 ? (
-                profile.current_exploring.map((item, i) => <li key={i}>• {item}</li>)
-              ) : (
-                <li>• No items yet</li>
-              )}
+              {profile.current_exploring.map((item, i) => <li key={i}>• {item}</li>)}
             </ul>
           </div>
         </div>
