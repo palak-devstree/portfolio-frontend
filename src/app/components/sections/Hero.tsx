@@ -13,6 +13,7 @@ import {
   Activity,
 } from 'lucide-react'
 import type { ProfileResponse } from '../../../lib/types'
+import Avatar3DThree from '../Avatar3DThree'
 
 interface HeroProps {
   profile: ProfileResponse
@@ -317,7 +318,7 @@ export function Hero({ profile }: HeroProps) {
         }}
       />
 
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20 pb-16">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20 pb-16">
         {/* Top rail: role badge + live inference indicator */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -367,186 +368,214 @@ export function Hero({ profile }: HeroProps) {
           </div>
         </motion.div>
 
-        {/* Name */}
-        <motion.h1
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.1 }}
-          className="font-mono"
-          style={{
-            fontSize: 'clamp(40px, 7vw, 78px)',
-            lineHeight: 1.04,
-            letterSpacing: '-0.03em',
-            color: '#e2e2e8',
-            marginBottom: '6px',
-          }}
-        >
-          <span
-            style={{
-              backgroundImage:
-                'linear-gradient(180deg, #ffffff 0%, #c9c7d9 100%)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              color: 'transparent',
-            }}
+        {/* Main Content: Avatar Left, Details Right */}
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          {/* Left Column: 3D Avatar */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="relative flex items-center justify-center lg:justify-start order-2 lg:order-1"
           >
-            {profile.full_name}
-          </span>
-        </motion.h1>
+            <div className="relative">
+              <Avatar3DThree />
+              {/* Decorative ring around avatar */}
+              <div
+                aria-hidden
+                className="absolute inset-0 rounded-full pointer-events-none"
+                style={{
+                  border: '2px solid rgba(107, 81, 224, 0.15)',
+                  animation: 'v0-scan 4s linear infinite',
+                }}
+              />
+            </div>
+          </motion.div>
 
-        {/* Role line */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="font-mono mb-6 flex items-center gap-3 flex-wrap"
-          style={{ fontSize: '15px', color: '#9d9db0' }}
-        >
-          <span style={{ color: '#8b6df5' }}>&gt;</span>
-          <span>{profile.job_title}</span>
-          <span style={{ color: '#4a4a58' }}>·</span>
-          <span>{profile.years_of_experience}+ yrs in production</span>
-          {profile.location && (
-            <>
-              <span style={{ color: '#4a4a58' }}>·</span>
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5" style={{ color: '#8b6df5' }} />
-                {profile.location}
-              </span>
-            </>
-          )}
-        </motion.div>
-
-        {/* Typewriter tagline */}
-        <p
-          className="max-w-3xl mb-8 leading-relaxed min-h-[3.2em]"
-          style={{ fontSize: '18px', color: '#b8b8c4' }}
-        >
-          {typed}
-        </p>
-
-        {/* Live AI metrics strip — the "engineer" vibe */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-8 max-w-3xl"
-        >
-          <LiveMetric
-            label="Tokens / sec"
-            value={tokensPerSec.toLocaleString()}
-            Icon={Zap}
-          />
-          <LiveMetric label="p95 latency" value={p95} unit="ms" Icon={Activity} />
-          <LiveMetric label="Queries / sec" value={qps} Icon={Activity} />
-          <LiveMetric label="GPU util" value={gpu} unit="%" Icon={Cpu} />
-        </motion.div>
-
-        {/* CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.65 }}
-          className="flex items-center gap-3 flex-wrap mb-8"
-        >
-          <Magnetic>
-            <a
-              href="#projects"
-              onClick={(e) => {
-                e.preventDefault()
-                document
-                  .getElementById('projects')
-                  ?.scrollIntoView({ behavior: 'smooth' })
-              }}
-              className="relative inline-flex items-center gap-2 px-4 py-2.5 rounded font-mono overflow-hidden group"
+          {/* Right Column: Details */}
+          <div className="order-1 lg:order-2">
+            {/* Name */}
+            <motion.h1
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.1 }}
+              className="font-mono"
               style={{
-                fontSize: '13px',
-                backgroundColor: '#6b51e0',
-                color: '#ffffff',
-                boxShadow: '0 0 28px rgba(107, 81, 224, 0.45)',
+                fontSize: 'clamp(36px, 6vw, 68px)',
+                lineHeight: 1.08,
+                letterSpacing: '-0.03em',
+                color: '#e2e2e8',
+                marginBottom: '8px',
               }}
             >
               <span
-                aria-hidden
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
                 style={{
-                  background:
-                    'linear-gradient(120deg, transparent, rgba(255,255,255,0.22), transparent)',
+                  backgroundImage:
+                    'linear-gradient(180deg, #ffffff 0%, #c9c7d9 100%)',
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                  color: 'transparent',
                 }}
-              />
-              <span className="relative">View Projects</span>
-              <ArrowRight className="w-4 h-4 relative transition-transform group-hover:translate-x-0.5" />
-            </a>
-          </Magnetic>
+              >
+                {profile.full_name}
+              </span>
+            </motion.h1>
 
-          <Magnetic>
-            <a
-              href="#contact"
-              onClick={(e) => {
-                e.preventDefault()
-                document
-                  .getElementById('contact')
-                  ?.scrollIntoView({ behavior: 'smooth' })
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded font-mono transition-colors"
-              style={{
-                fontSize: '13px',
-                backgroundColor: 'transparent',
-                border: '1px solid #2a2a36',
-                color: '#e2e2e8',
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.borderColor = '#6b51e0')
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.borderColor = '#2a2a36')
-              }
+            {/* Role line */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="font-mono mb-6 flex items-center gap-3 flex-wrap"
+              style={{ fontSize: '15px', color: '#9d9db0' }}
             >
-              <Mail className="w-4 h-4" />
-              Contact
-            </a>
-          </Magnetic>
+              <span style={{ color: '#8b6df5' }}>&gt;</span>
+              <span>{profile.job_title}</span>
+              <span style={{ color: '#4a4a58' }}>·</span>
+              <span>{profile.years_of_experience}+ yrs in production</span>
+              {profile.location && (
+                <>
+                  <span style={{ color: '#4a4a58' }}>·</span>
+                  <span className="inline-flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5" style={{ color: '#8b6df5' }} />
+                    {profile.location}
+                  </span>
+                </>
+              )}
+            </motion.div>
 
-          {socials.length > 0 && (
-            <div className="flex items-center gap-1.5 ml-1">
-              {socials.map(({ href, label, Icon }) => (
+            {/* Typewriter tagline */}
+            <p
+              className="mb-8 leading-relaxed min-h-[3.2em]"
+              style={{ fontSize: '18px', color: '#b8b8c4' }}
+            >
+              {typed}
+              <BlockCursor size="md" />
+            </p>
+
+            {/* Live AI metrics strip — the "engineer" vibe */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="grid grid-cols-2 gap-2 mb-8"
+            >
+              <LiveMetric
+                label="Tokens / sec"
+                value={tokensPerSec.toLocaleString()}
+                Icon={Zap}
+              />
+              <LiveMetric label="p95 latency" value={p95} unit="ms" Icon={Activity} />
+              <LiveMetric label="Queries / sec" value={qps} Icon={Activity} />
+              <LiveMetric label="GPU util" value={gpu} unit="%" Icon={Cpu} />
+            </motion.div>
+
+            {/* CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.65 }}
+              className="flex items-center gap-3 flex-wrap mb-8"
+            >
+              <Magnetic>
                 <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="w-9 h-9 rounded flex items-center justify-center transition-all"
+                  href="#projects"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    document
+                      .getElementById('projects')
+                      ?.scrollIntoView({ behavior: 'smooth' })
+                  }}
+                  className="relative inline-flex items-center gap-2 px-4 py-2.5 rounded font-mono overflow-hidden group"
                   style={{
-                    backgroundColor: '#14141c',
-                    border: '1px solid #1f1f28',
-                    color: '#b8b8c4',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#6b51e0'
-                    e.currentTarget.style.color = '#e2e2e8'
-                    e.currentTarget.style.boxShadow =
-                      '0 0 14px rgba(107, 81, 224, 0.3)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#1f1f28'
-                    e.currentTarget.style.color = '#b8b8c4'
-                    e.currentTarget.style.boxShadow = 'none'
+                    fontSize: '13px',
+                    backgroundColor: '#6b51e0',
+                    color: '#ffffff',
+                    boxShadow: '0 0 28px rgba(107, 81, 224, 0.45)',
                   }}
                 >
-                  <Icon className="w-4 h-4" />
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{
+                      background:
+                        'linear-gradient(120deg, transparent, rgba(255,255,255,0.22), transparent)',
+                    }}
+                  />
+                  <span className="relative">View Projects</span>
+                  <ArrowRight className="w-4 h-4 relative transition-transform group-hover:translate-x-0.5" />
                 </a>
-              ))}
-            </div>
-          )}
-        </motion.div>
+              </Magnetic>
 
-        {/* Stack marquee */}
+              <Magnetic>
+                <a
+                  href="#contact"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    document
+                      .getElementById('contact')
+                      ?.scrollIntoView({ behavior: 'smooth' })
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded font-mono transition-colors"
+                  style={{
+                    fontSize: '13px',
+                    backgroundColor: 'transparent',
+                    border: '1px solid #2a2a36',
+                    color: '#e2e2e8',
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.borderColor = '#6b51e0')
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.borderColor = '#2a2a36')
+                  }
+                >
+                  <Mail className="w-4 h-4" />
+                  Contact
+                </a>
+              </Magnetic>
+
+              {socials.length > 0 && (
+                <div className="flex items-center gap-1.5 ml-1">
+                  {socials.map(({ href, label, Icon }) => (
+                    <a
+                      key={label}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="w-9 h-9 rounded flex items-center justify-center transition-all"
+                      style={{
+                        backgroundColor: '#14141c',
+                        border: '1px solid #1f1f28',
+                        color: '#b8b8c4',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#6b51e0'
+                        e.currentTarget.style.color = '#e2e2e8'
+                        e.currentTarget.style.boxShadow =
+                          '0 0 14px rgba(107, 81, 224, 0.3)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = '#1f1f28'
+                        e.currentTarget.style.color = '#b8b8c4'
+                        e.currentTarget.style.boxShadow = 'none'
+                      }}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Stack marquee - Full Width Below */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.85 }}
-          className="relative"
+          className="relative mt-12"
         >
           <div
             className="font-mono uppercase tracking-[0.25em] mb-3"
