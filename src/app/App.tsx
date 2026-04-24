@@ -41,7 +41,7 @@ function Dashboard() {
                   className="font-mono uppercase tracking-wider"
                   style={{ fontSize: '11px', color: '#757584' }}
                 >
-                  System Status: Online
+                  System Status: Online 
                 </span>
               </div>
               <h1 
