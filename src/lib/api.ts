@@ -71,3 +71,8 @@ export const chatbotAPI = {
   query: (query: string, sessionId: string) => 
     api.post('/api/v1/chatbot/query', { query, session_id: sessionId }),
 };
+
+export const contactAPI = {
+  send: (data: { name: string; email: string; subject: string; message: string }) =>
+    api.post('/api/v1/contact', data),
+};
