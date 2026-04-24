@@ -368,76 +368,177 @@ export function Hero({ profile }: HeroProps) {
           </div>
         </motion.div>
 
-        {/* Main Content: Avatar Left, Details Right */}
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left Column: 3D Avatar */}
+        {/* Main Content: Profile Card Left, Details Right */}
+        <div className="grid lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] gap-8 lg:gap-10 items-start">
+          {/* Left Column: Profile Card */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative flex items-center justify-center lg:justify-start order-2 lg:order-1"
+            className="relative order-2 lg:order-1 lg:sticky lg:top-24"
           >
-            <div className="relative w-full max-w-[520px]">
-              <Avatar3DThree />
+            {/* Ambient purple glow under the card */}
+            <div
+              aria-hidden
+              className="absolute inset-x-4 -bottom-4 h-8 rounded-full blur-2xl pointer-events-none"
+              style={{ background: 'rgba(107,81,224,0.55)' }}
+            />
+            <div
+              className="relative overflow-hidden rounded-2xl"
+              style={{
+                background:
+                  'linear-gradient(160deg, #1a1328 0%, #130f22 55%, #0f0b1a 100%)',
+                border: '1px solid rgba(139,109,245,0.28)',
+                boxShadow:
+                  '0 20px 60px -20px rgba(107,81,224,0.55), 0 0 0 1px rgba(139,109,245,0.06) inset',
+              }}
+            >
+              {/* Subtle dotted texture inside card */}
+              <div
+                aria-hidden
+                className="absolute inset-0 pointer-events-none opacity-[0.35]"
+                style={{
+                  backgroundImage:
+                    'radial-gradient(rgba(139,109,245,0.18) 1px, transparent 1px)',
+                  backgroundSize: '16px 16px',
+                  maskImage:
+                    'radial-gradient(ellipse 80% 55% at 50% 30%, black, transparent 75%)',
+                  WebkitMaskImage:
+                    'radial-gradient(ellipse 80% 55% at 50% 30%, black, transparent 75%)',
+                }}
+              />
+              {/* Status chip */}
+              <div className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 px-2 py-1 rounded-full"
+                style={{
+                  backgroundColor: 'rgba(15,15,23,0.7)',
+                  border: '1px solid rgba(45,212,191,0.25)',
+                  backdropFilter: 'blur(6px)',
+                }}
+              >
+                <span className="relative flex w-1.5 h-1.5">
+                  <span
+                    className="absolute inset-0 rounded-full animate-ping"
+                    style={{ backgroundColor: '#2dd4bf', opacity: 0.7 }}
+                  />
+                  <span
+                    className="relative w-1.5 h-1.5 rounded-full"
+                    style={{ backgroundColor: '#2dd4bf' }}
+                  />
+                </span>
+                <span
+                  className="font-mono uppercase"
+                  style={{
+                    fontSize: '9px',
+                    color: '#2dd4bf',
+                    letterSpacing: '0.2em',
+                  }}
+                >
+                  online
+                </span>
+              </div>
+
+              {/* 3D Avatar */}
+              <div className="relative px-4 pt-4">
+                <Avatar3DThree />
+              </div>
+
+              {/* Name + title + location */}
+              <div className="relative px-5 pb-5 pt-1 text-center">
+                <h1
+                  className="font-mono"
+                  style={{
+                    fontSize: 'clamp(24px, 2.2vw, 32px)',
+                    lineHeight: 1.1,
+                    letterSpacing: '-0.02em',
+                    marginBottom: '6px',
+                    backgroundImage:
+                      'linear-gradient(180deg, #ffffff 0%, #c9c7d9 100%)',
+                    WebkitBackgroundClip: 'text',
+                    backgroundClip: 'text',
+                    color: 'transparent',
+                  }}
+                >
+                  {profile.full_name}
+                </h1>
+                <p
+                  className="font-mono"
+                  style={{
+                    fontSize: '13px',
+                    color: '#b8b8c4',
+                    marginBottom: profile.location ? '10px' : 0,
+                  }}
+                >
+                  {profile.job_title}
+                </p>
+                {profile.location && (
+                  <div
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                    style={{
+                      backgroundColor: 'rgba(107,81,224,0.12)',
+                      border: '1px solid rgba(139,109,245,0.25)',
+                    }}
+                  >
+                    <MapPin className="w-3 h-3" style={{ color: '#8b6df5' }} />
+                    <span
+                      className="font-mono"
+                      style={{ fontSize: '11px', color: '#d1cfe2' }}
+                    >
+                      {profile.location}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
 
           {/* Right Column: Details */}
           <div className="order-1 lg:order-2">
-            {/* Name */}
-            <motion.h1
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.1 }}
-              className="font-mono"
-              style={{
-                fontSize: 'clamp(36px, 6vw, 68px)',
-                lineHeight: 1.08,
-                letterSpacing: '-0.03em',
-                color: '#e2e2e8',
-                marginBottom: '8px',
-              }}
-            >
-              <span
-                style={{
-                  backgroundImage:
-                    'linear-gradient(180deg, #ffffff 0%, #c9c7d9 100%)',
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                  color: 'transparent',
-                }}
-              >
-                {profile.full_name}
-              </span>
-            </motion.h1>
-
             {/* Role line */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="font-mono mb-6 flex items-center gap-3 flex-wrap"
-              style={{ fontSize: '15px', color: '#9d9db0' }}
+              className="font-mono mb-4 flex items-center gap-3 flex-wrap"
+              style={{ fontSize: '14px', color: '#9d9db0' }}
             >
               <span style={{ color: '#8b6df5' }}>&gt;</span>
               <span>{profile.job_title}</span>
               <span style={{ color: '#4a4a58' }}>·</span>
               <span>{profile.years_of_experience}+ yrs in production</span>
-              {profile.location && (
-                <>
-                  <span style={{ color: '#4a4a58' }}>·</span>
-                  <span className="inline-flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5" style={{ color: '#8b6df5' }} />
-                    {profile.location}
-                  </span>
-                </>
-              )}
             </motion.div>
+
+            {/* Hero headline */}
+            <motion.h2
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.1 }}
+              className="font-mono mb-4"
+              style={{
+                fontSize: 'clamp(28px, 4vw, 44px)',
+                lineHeight: 1.1,
+                letterSpacing: '-0.02em',
+                color: '#e2e2e8',
+              }}
+            >
+              Building{' '}
+              <span
+                style={{
+                  backgroundImage:
+                    'linear-gradient(90deg, #8b6df5 0%, #2dd4bf 100%)',
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                  color: 'transparent',
+                }}
+              >
+                AI systems
+              </span>{' '}
+              that ship.
+            </motion.h2>
 
             {/* Typewriter tagline */}
             <p
               className="mb-8 leading-relaxed min-h-[3.2em]"
-              style={{ fontSize: '18px', color: '#b8b8c4' }}
+              style={{ fontSize: '16px', color: '#b8b8c4' }}
             >
               {typed}
               <BlockCursor size="md" />

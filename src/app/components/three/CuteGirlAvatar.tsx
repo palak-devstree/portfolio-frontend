@@ -4,25 +4,27 @@ import * as THREE from 'three'
 
 /**
  * CuteGirlAvatar
- * A stylized chibi girl rendered entirely from primitive geometry so it
- * stays lightweight (no external GLB). Palette is locked to the site theme:
- *   - Purple primary:   #6b51e0 / #8b6df5
- *   - Teal accent:      #2dd4bf
- *   - Pink blush:       #ff8fb3
- *   - Warm skin tone:   #ffd8b5
- *   - Dark hoodie:      #15151f / trim #6b51e0
+ * A super-chibi girl with an oversized head, tiny body and round glasses.
+ * Designed to sit inside a compact ProfileCard — the character is framed
+ * so the head fills most of the viewport with just shoulders peeking in
+ * at the bottom.
+ *
+ * Palette (locked to the site's dark-purple/teal theme):
+ *   Hair:     #8b6df5 / #5d3fd1 / #b8a0ff (highlight)
+ *   Eyes:     #2dd4bf teal iris
+ *   Skin:     #ffd8b5
+ *   Hoodie:   #15151f with #6b51e0 trim
+ *   Glasses:  #8b6df5 (thin purple frame)
  *
  * Animations:
- *   - Floating (idle bob)
- *   - Subtle breathing scale
- *   - Head tracks the cursor (with damping)
- *   - Natural eye blinks with randomized cadence
- *   - Twin ponytails sway with a delayed follow (pseudo-physics)
- *   - Periodic friendly wave from the right arm
- *   - Headphone LEDs pulse to a hidden "beat"
+ *   - Idle float + breathing scale
+ *   - Head tracks cursor (damped)
+ *   - Blinking with randomized cadence
+ *   - Ponytail sway that lags behind head rotation
+ *   - Occasional friendly wave
+ *   - Glasses shine that drifts across the lens
  */
 
-// --- Shared palette (kept as THREE.Color for fewer allocations) ----------
 const PALETTE = {
   skin: '#ffd8b5',
   skinShadow: '#e8b894',
@@ -31,7 +33,6 @@ const PALETTE = {
   hairHighlight: '#b8a0ff',
   eyeWhite: '#ffffff',
   iris: '#2dd4bf',
-  irisDark: '#0f766e',
   pupil: '#0b0b0f',
   lips: '#ff6b9d',
   blush: '#ff8fb3',
@@ -42,6 +43,7 @@ const PALETTE = {
   headphoneCushion: '#2a2a36',
   led: '#2dd4bf',
   brow: '#3d2a7a',
+  glasses: '#8b6df5',
 }
 
 export default function CuteGirlAvatar() {
@@ -56,16 +58,16 @@ export default function CuteGirlAvatar() {
   const ledLeftRef = useRef<THREE.MeshStandardMaterial>(null)
   const ledRightRef = useRef<THREE.MeshStandardMaterial>(null)
   const mouthRef = useRef<THREE.Mesh>(null)
+  const glassShineLeftRef = useRef<THREE.Mesh>(null)
+  const glassShineRightRef = useRef<THREE.Mesh>(null)
 
-  // Pointer position in [-1, 1] normalized space (relative to viewport).
+  // Pointer position in [-1, 1] normalized space.
   const pointer = useRef({ x: 0, y: 0 })
 
-  // Blink state machine: next blink timestamp (in seconds).
+  // Blink & wave state.
   const nextBlinkRef = useRef(2 + Math.random() * 2)
   const blinkingUntilRef = useRef(0)
-
-  // Wave state: periodically trigger a 2.5s wave animation.
-  const nextWaveRef = useRef(4 + Math.random() * 3)
+  const nextWaveRef = useRef(5 + Math.random() * 3)
   const wavingUntilRef = useRef(0)
 
   useEffect(() => {
@@ -80,21 +82,21 @@ export default function CuteGirlAvatar() {
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime
 
-    // ----- Idle float + breathing ----------------------------------------
+    // Idle float + slow sway
     if (rootRef.current) {
-      rootRef.current.position.y = -0.15 + Math.sin(t * 1.2) * 0.06
-      // Very subtle sway so the character never feels dead
+      rootRef.current.position.y = -0.9 + Math.sin(t * 1.2) * 0.05
       rootRef.current.rotation.z = Math.sin(t * 0.6) * 0.02
     }
+    // Breathing
     if (bodyRef.current) {
       const breath = 1 + Math.sin(t * 1.8) * 0.015
       bodyRef.current.scale.set(breath, breath, breath)
     }
 
-    // ----- Head tracking --------------------------------------------------
+    // Head tracks cursor (damped)
     if (headRef.current) {
-      const targetY = pointer.current.x * 0.5
-      const targetX = -pointer.current.y * 0.25 + Math.sin(t * 0.9) * 0.03
+      const targetY = pointer.current.x * 0.45
+      const targetX = -pointer.current.y * 0.22 + Math.sin(t * 0.9) * 0.03
       headRef.current.rotation.y = THREE.MathUtils.damp(
         headRef.current.rotation.y,
         targetY,
@@ -109,7 +111,7 @@ export default function CuteGirlAvatar() {
       )
     }
 
-    // ----- Blinking -------------------------------------------------------
+    // Blinking
     if (eyesRef.current) {
       if (t > nextBlinkRef.current && blinkingUntilRef.current === 0) {
         blinkingUntilRef.current = t + 0.13
@@ -125,7 +127,7 @@ export default function CuteGirlAvatar() {
       }
     }
 
-    // ----- Pony tail sway (delayed follow of head rotation) --------------
+    // Ponytails sway with lag behind head rotation
     const headY = headRef.current?.rotation.y ?? 0
     const tailSway = Math.sin(t * 2.2) * 0.18 - headY * 0.6
     if (leftTailRef.current) {
@@ -147,16 +149,16 @@ export default function CuteGirlAvatar() {
       rightTailRef.current.rotation.x = Math.sin(t * 1.6 + 0.5) * 0.08
     }
 
-    // ----- Periodic wave --------------------------------------------------
+    // Periodic wave
     if (rightArmRef.current) {
       if (t > nextWaveRef.current && wavingUntilRef.current === 0) {
         wavingUntilRef.current = t + 2.4
-        nextWaveRef.current = t + 7 + Math.random() * 4
+        nextWaveRef.current = t + 8 + Math.random() * 4
       }
       if (wavingUntilRef.current > 0 && t < wavingUntilRef.current) {
-        // Raise arm and wiggle
         const progress = 1 - (wavingUntilRef.current - t) / 2.4
-        const lift = THREE.MathUtils.smoothstep(progress, 0, 0.2) *
+        const lift =
+          THREE.MathUtils.smoothstep(progress, 0, 0.2) *
           (1 - THREE.MathUtils.smoothstep(progress, 0.8, 1))
         rightArmRef.current.rotation.z = THREE.MathUtils.damp(
           rightArmRef.current.rotation.z,
@@ -185,36 +187,38 @@ export default function CuteGirlAvatar() {
       leftArmRef.current.rotation.z = 0.3 + Math.sin(t * 1.4) * 0.04
     }
 
-    // ----- Headphone LEDs pulsing ----------------------------------------
+    // Headphone LED pulse
     const pulse = (Math.sin(t * 4) + 1) / 2
     const intensity = 0.8 + pulse * 2.2
     if (ledLeftRef.current) ledLeftRef.current.emissiveIntensity = intensity
     if (ledRightRef.current) ledRightRef.current.emissiveIntensity = intensity
 
-    // ----- Tiny mouth "smile breath" -------------------------------------
+    // Mouth smile breath
     if (mouthRef.current) {
       mouthRef.current.scale.x = 1 + Math.sin(t * 1.8) * 0.05
+    }
+
+    // Glasses shine drifts across the lens
+    const shineX = Math.sin(t * 1.4) * 0.04
+    if (glassShineLeftRef.current) {
+      glassShineLeftRef.current.position.x = -0.28 + shineX
+    }
+    if (glassShineRightRef.current) {
+      glassShineRightRef.current.position.x = 0.32 + shineX
     }
   })
 
   return (
-    <group ref={rootRef} position={[0, -0.15, 0]}>
-      {/* --- Lights ------------------------------------------------------- */}
-      <ambientLight intensity={0.55} color="#e9e4ff" />
-      {/* Key (purple tint) */}
-      <directionalLight
-        position={[3, 4, 4]}
-        intensity={1.15}
-        color="#ffffff"
-      />
-      {/* Rim light (teal) for the theme */}
+    <group ref={rootRef}>
+      {/* Lights */}
+      <ambientLight intensity={0.6} color="#e9e4ff" />
+      <directionalLight position={[3, 4, 4]} intensity={1.15} color="#ffffff" />
       <pointLight position={[-4, 2, -3]} intensity={1.6} color="#2dd4bf" />
-      {/* Fill from below */}
       <pointLight position={[0, -3, 2]} intensity={0.45} color="#8b6df5" />
 
-      {/* --- Head group (everything above shoulders) --------------------- */}
-      <group ref={headRef} position={[0, 0.85, 0]}>
-        {/* Head — slightly squashed sphere for chibi look */}
+      {/* Head group — scaled up for super-chibi feel */}
+      <group ref={headRef} position={[0, 0.85, 0]} scale={1.15}>
+        {/* Head sphere */}
         <mesh castShadow scale={[1, 1.05, 0.98]}>
           <sphereGeometry args={[0.78, 48, 48]} />
           <meshStandardMaterial
@@ -224,7 +228,7 @@ export default function CuteGirlAvatar() {
           />
         </mesh>
 
-        {/* Back hair cap — covers the back half of the skull */}
+        {/* Back hair cap */}
         <mesh position={[0, 0.05, -0.05]} scale={[1.08, 1.1, 1.08]}>
           <sphereGeometry
             args={[0.78, 48, 48, 0, Math.PI * 2, 0, Math.PI * 0.75]}
@@ -236,7 +240,7 @@ export default function CuteGirlAvatar() {
           />
         </mesh>
 
-        {/* Top/front hair — shorter cap that overhangs the forehead */}
+        {/* Top hair overhang */}
         <mesh position={[0, 0.18, 0.02]} scale={[1.12, 0.9, 1.14]}>
           <sphereGeometry
             args={[0.78, 48, 48, 0, Math.PI * 2, 0, Math.PI * 0.55]}
@@ -248,7 +252,7 @@ export default function CuteGirlAvatar() {
           />
         </mesh>
 
-        {/* Hair highlight streak */}
+        {/* Hair highlight */}
         <mesh position={[0.15, 0.32, 0.55]} rotation={[0.3, 0, -0.2]}>
           <sphereGeometry args={[0.14, 24, 24]} />
           <meshStandardMaterial
@@ -260,7 +264,7 @@ export default function CuteGirlAvatar() {
           />
         </mesh>
 
-        {/* Front bangs — two soft tufts over the forehead */}
+        {/* Front bangs */}
         <mesh position={[-0.25, 0.42, 0.55]} rotation={[0.5, 0, 0.3]}>
           <coneGeometry args={[0.22, 0.45, 12]} />
           <meshStandardMaterial color={PALETTE.hair} roughness={0.4} />
@@ -274,7 +278,7 @@ export default function CuteGirlAvatar() {
           <meshStandardMaterial color={PALETTE.hairDark} roughness={0.45} />
         </mesh>
 
-        {/* --- Twin ponytails (anchored to back of head, sway from top) - */}
+        {/* Twin ponytails */}
         <group ref={leftTailRef} position={[-0.6, 0.2, -0.1]}>
           <mesh position={[-0.15, -0.35, 0]} rotation={[0, 0, 0.2]}>
             <capsuleGeometry args={[0.17, 0.55, 12, 20]} />
@@ -284,7 +288,6 @@ export default function CuteGirlAvatar() {
             <coneGeometry args={[0.14, 0.4, 16]} />
             <meshStandardMaterial color={PALETTE.hairDark} roughness={0.45} />
           </mesh>
-          {/* Hair tie */}
           <mesh position={[-0.05, -0.1, 0]} rotation={[Math.PI / 2, 0, 0]}>
             <torusGeometry args={[0.14, 0.04, 12, 24]} />
             <meshStandardMaterial
@@ -316,19 +319,15 @@ export default function CuteGirlAvatar() {
           </mesh>
         </group>
 
-        {/* --- Headphones over the ears ------------------------------- */}
-        {/* Headband */}
-        <mesh position={[0, 0.55, 0]} rotation={[0, 0, 0]}>
-          <torusGeometry
-            args={[0.78, 0.045, 16, 48, Math.PI]}
-          />
+        {/* Headphones */}
+        <mesh position={[0, 0.55, 0]}>
+          <torusGeometry args={[0.78, 0.045, 16, 48, Math.PI]} />
           <meshStandardMaterial
             color={PALETTE.headphone}
             roughness={0.35}
             metalness={0.7}
           />
         </mesh>
-        {/* Left ear cup */}
         <group position={[-0.78, 0.1, 0]}>
           <mesh>
             <cylinderGeometry args={[0.2, 0.2, 0.12, 32]} />
@@ -345,7 +344,6 @@ export default function CuteGirlAvatar() {
               roughness={0.9}
             />
           </mesh>
-          {/* LED */}
           <mesh position={[-0.065, 0, 0]}>
             <sphereGeometry args={[0.025, 16, 16]} />
             <meshStandardMaterial
@@ -357,7 +355,6 @@ export default function CuteGirlAvatar() {
             />
           </mesh>
         </group>
-        {/* Right ear cup */}
         <group position={[0.78, 0.1, 0]}>
           <mesh>
             <cylinderGeometry args={[0.2, 0.2, 0.12, 32]} />
@@ -386,7 +383,7 @@ export default function CuteGirlAvatar() {
           </mesh>
         </group>
 
-        {/* --- Eyebrows ------------------------------------------------ */}
+        {/* Eyebrows */}
         <mesh position={[-0.25, 0.22, 0.72]} rotation={[0, 0, -0.08]}>
           <boxGeometry args={[0.16, 0.035, 0.02]} />
           <meshStandardMaterial color={PALETTE.brow} />
@@ -396,16 +393,13 @@ export default function CuteGirlAvatar() {
           <meshStandardMaterial color={PALETTE.brow} />
         </mesh>
 
-        {/* --- Eyes (big anime style, teal iris) ----------------------- */}
+        {/* Eyes */}
         <group ref={eyesRef}>
-          {/* Left */}
           <group position={[-0.26, 0.03, 0.7]}>
-            {/* white */}
             <mesh>
               <sphereGeometry args={[0.13, 32, 32]} />
               <meshStandardMaterial color={PALETTE.eyeWhite} roughness={0.2} />
             </mesh>
-            {/* iris */}
             <mesh position={[0, -0.01, 0.08]}>
               <sphereGeometry args={[0.09, 32, 32]} />
               <meshStandardMaterial
@@ -415,12 +409,10 @@ export default function CuteGirlAvatar() {
                 roughness={0.3}
               />
             </mesh>
-            {/* pupil */}
             <mesh position={[0, -0.01, 0.14]}>
               <sphereGeometry args={[0.045, 24, 24]} />
               <meshStandardMaterial color={PALETTE.pupil} />
             </mesh>
-            {/* highlight */}
             <mesh position={[0.03, 0.035, 0.175]}>
               <sphereGeometry args={[0.022, 16, 16]} />
               <meshStandardMaterial
@@ -441,7 +433,6 @@ export default function CuteGirlAvatar() {
             </mesh>
           </group>
 
-          {/* Right */}
           <group position={[0.26, 0.03, 0.7]}>
             <mesh>
               <sphereGeometry args={[0.13, 32, 32]} />
@@ -481,21 +472,91 @@ export default function CuteGirlAvatar() {
           </group>
         </group>
 
-        {/* Nose — tiny shadow bump */}
+        {/* Round glasses frames */}
+        <mesh position={[-0.26, 0.03, 0.82]} rotation={[0, 0, 0]}>
+          <torusGeometry args={[0.18, 0.018, 16, 40]} />
+          <meshStandardMaterial
+            color={PALETTE.glasses}
+            emissive={PALETTE.glasses}
+            emissiveIntensity={0.45}
+            metalness={0.6}
+            roughness={0.25}
+            toneMapped={false}
+          />
+        </mesh>
+        <mesh position={[0.26, 0.03, 0.82]} rotation={[0, 0, 0]}>
+          <torusGeometry args={[0.18, 0.018, 16, 40]} />
+          <meshStandardMaterial
+            color={PALETTE.glasses}
+            emissive={PALETTE.glasses}
+            emissiveIntensity={0.45}
+            metalness={0.6}
+            roughness={0.25}
+            toneMapped={false}
+          />
+        </mesh>
+        {/* Glasses bridge */}
+        <mesh position={[0, 0.03, 0.82]}>
+          <boxGeometry args={[0.18, 0.02, 0.02]} />
+          <meshStandardMaterial
+            color={PALETTE.glasses}
+            emissive={PALETTE.glasses}
+            emissiveIntensity={0.4}
+            metalness={0.6}
+            roughness={0.25}
+            toneMapped={false}
+          />
+        </mesh>
+        {/* Glasses side arms */}
+        <mesh position={[-0.44, 0.03, 0.72]} rotation={[0, 0.5, 0]}>
+          <boxGeometry args={[0.14, 0.02, 0.02]} />
+          <meshStandardMaterial
+            color={PALETTE.glasses}
+            metalness={0.5}
+            roughness={0.3}
+          />
+        </mesh>
+        <mesh position={[0.44, 0.03, 0.72]} rotation={[0, -0.5, 0]}>
+          <boxGeometry args={[0.14, 0.02, 0.02]} />
+          <meshStandardMaterial
+            color={PALETTE.glasses}
+            metalness={0.5}
+            roughness={0.3}
+          />
+        </mesh>
+        {/* Drifting shine on each lens (flat discs slightly in front) */}
+        <mesh ref={glassShineLeftRef} position={[-0.28, 0.07, 0.84]}>
+          <circleGeometry args={[0.055, 20]} />
+          <meshBasicMaterial
+            color="#ffffff"
+            transparent
+            opacity={0.28}
+            toneMapped={false}
+          />
+        </mesh>
+        <mesh ref={glassShineRightRef} position={[0.32, 0.07, 0.84]}>
+          <circleGeometry args={[0.055, 20]} />
+          <meshBasicMaterial
+            color="#ffffff"
+            transparent
+            opacity={0.28}
+            toneMapped={false}
+          />
+        </mesh>
+
+        {/* Nose */}
         <mesh position={[0, -0.1, 0.78]}>
           <sphereGeometry args={[0.035, 16, 16]} />
           <meshStandardMaterial color={PALETTE.skinShadow} roughness={0.8} />
         </mesh>
 
-        {/* Mouth — small smile using torus */}
+        {/* Mouth */}
         <mesh
           ref={mouthRef}
           position={[0, -0.28, 0.73]}
           rotation={[Math.PI, 0, 0]}
         >
-          <torusGeometry
-            args={[0.08, 0.018, 12, 24, Math.PI]}
-          />
+          <torusGeometry args={[0.08, 0.018, 12, 24, Math.PI]} />
           <meshStandardMaterial color={PALETTE.lips} roughness={0.5} />
         </mesh>
 
@@ -520,31 +581,30 @@ export default function CuteGirlAvatar() {
         </mesh>
       </group>
 
-      {/* --- Neck --------------------------------------------------------- */}
-      <mesh position={[0, 0.18, 0]}>
-        <cylinderGeometry args={[0.18, 0.22, 0.18, 24]} />
+      {/* Neck */}
+      <mesh position={[0, 0.12, 0]}>
+        <cylinderGeometry args={[0.15, 0.2, 0.14, 24]} />
         <meshStandardMaterial color={PALETTE.skin} roughness={0.6} />
       </mesh>
 
-      {/* --- Body (hoodie) ----------------------------------------------- */}
+      {/* Body (hoodie) — smaller chibi proportion */}
       <group ref={bodyRef}>
-        {/* Torso */}
-        <mesh position={[0, -0.45, 0]}>
-          <cylinderGeometry args={[0.55, 0.7, 1.15, 32]} />
+        <mesh position={[0, -0.35, 0]}>
+          <cylinderGeometry args={[0.45, 0.58, 0.9, 32]} />
           <meshStandardMaterial
             color={PALETTE.hoodie}
             roughness={0.75}
             metalness={0.05}
           />
         </mesh>
-        {/* Hood ring behind the neck */}
-        <mesh position={[0, 0.08, -0.1]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.38, 0.12, 16, 32]} />
+        {/* Hood ring */}
+        <mesh position={[0, 0.02, -0.1]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.32, 0.1, 16, 32]} />
           <meshStandardMaterial color={PALETTE.hoodie} roughness={0.8} />
         </mesh>
         {/* Zipper */}
-        <mesh position={[0, -0.45, 0.55]}>
-          <boxGeometry args={[0.02, 1.1, 0.02]} />
+        <mesh position={[0, -0.35, 0.45]}>
+          <boxGeometry args={[0.02, 0.85, 0.02]} />
           <meshStandardMaterial
             color={PALETTE.hoodieTrim}
             emissive={PALETTE.hoodieTrim}
@@ -553,9 +613,9 @@ export default function CuteGirlAvatar() {
             roughness={0.25}
           />
         </mesh>
-        {/* Chest emblem — small glowing square (nod to the dev theme) */}
-        <mesh position={[-0.18, -0.2, 0.56]}>
-          <boxGeometry args={[0.14, 0.14, 0.01]} />
+        {/* Chest emblem */}
+        <mesh position={[-0.14, -0.18, 0.46]}>
+          <boxGeometry args={[0.11, 0.11, 0.01]} />
           <meshStandardMaterial
             color={PALETTE.hoodieAccent}
             emissive={PALETTE.hoodieAccent}
@@ -564,8 +624,8 @@ export default function CuteGirlAvatar() {
           />
         </mesh>
         {/* Bottom trim */}
-        <mesh position={[0, -1.02, 0]}>
-          <cylinderGeometry args={[0.71, 0.71, 0.06, 32]} />
+        <mesh position={[0, -0.82, 0]}>
+          <cylinderGeometry args={[0.59, 0.59, 0.06, 32]} />
           <meshStandardMaterial
             color={PALETTE.hoodieTrim}
             emissive={PALETTE.hoodieTrim}
@@ -575,61 +635,49 @@ export default function CuteGirlAvatar() {
         </mesh>
       </group>
 
-      {/* --- Arms --------------------------------------------------------- */}
-      {/* Left arm (character's left = screen right of body, but we keep
-          the character-relative naming) */}
-      <group ref={leftArmRef} position={[-0.65, 0.02, 0]}>
-        <mesh position={[-0.05, -0.5, 0]} rotation={[0, 0, 0.25]}>
-          <capsuleGeometry args={[0.13, 0.65, 12, 20]} />
+      {/* Arms — small stubby chibi arms */}
+      <group ref={leftArmRef} position={[-0.52, -0.02, 0]}>
+        <mesh position={[-0.04, -0.38, 0]} rotation={[0, 0, 0.25]}>
+          <capsuleGeometry args={[0.11, 0.5, 12, 20]} />
           <meshStandardMaterial color={PALETTE.hoodie} roughness={0.75} />
         </mesh>
-        {/* Sleeve cuff */}
-        <mesh position={[-0.24, -0.85, 0]} rotation={[0, 0, 0.25]}>
-          <cylinderGeometry args={[0.14, 0.14, 0.08, 24]} />
+        <mesh position={[-0.2, -0.66, 0]} rotation={[0, 0, 0.25]}>
+          <cylinderGeometry args={[0.12, 0.12, 0.07, 24]} />
           <meshStandardMaterial
             color={PALETTE.hoodieTrim}
             emissive={PALETTE.hoodieTrim}
             emissiveIntensity={0.3}
           />
         </mesh>
-        {/* Hand */}
-        <mesh position={[-0.3, -0.98, 0]}>
-          <sphereGeometry args={[0.12, 20, 20]} />
+        <mesh position={[-0.25, -0.77, 0]}>
+          <sphereGeometry args={[0.1, 20, 20]} />
           <meshStandardMaterial color={PALETTE.skin} roughness={0.6} />
         </mesh>
       </group>
 
-      {/* Right arm — this one does the wave */}
-      <group ref={rightArmRef} position={[0.65, 0.02, 0]}>
-        <mesh position={[0.05, -0.5, 0]} rotation={[0, 0, -0.25]}>
-          <capsuleGeometry args={[0.13, 0.65, 12, 20]} />
+      <group ref={rightArmRef} position={[0.52, -0.02, 0]}>
+        <mesh position={[0.04, -0.38, 0]} rotation={[0, 0, -0.25]}>
+          <capsuleGeometry args={[0.11, 0.5, 12, 20]} />
           <meshStandardMaterial color={PALETTE.hoodie} roughness={0.75} />
         </mesh>
-        <mesh position={[0.24, -0.85, 0]} rotation={[0, 0, -0.25]}>
-          <cylinderGeometry args={[0.14, 0.14, 0.08, 24]} />
+        <mesh position={[0.2, -0.66, 0]} rotation={[0, 0, -0.25]}>
+          <cylinderGeometry args={[0.12, 0.12, 0.07, 24]} />
           <meshStandardMaterial
             color={PALETTE.hoodieTrim}
             emissive={PALETTE.hoodieTrim}
             emissiveIntensity={0.3}
           />
         </mesh>
-        <mesh position={[0.3, -0.98, 0]}>
-          <sphereGeometry args={[0.12, 20, 20]} />
+        <mesh position={[0.25, -0.77, 0]}>
+          <sphereGeometry args={[0.1, 20, 20]} />
           <meshStandardMaterial color={PALETTE.skin} roughness={0.6} />
         </mesh>
       </group>
 
-      {/* Soft contact-style shadow (a dark disc below the character) */}
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -1.55, 0]}
-      >
-        <circleGeometry args={[0.9, 48]} />
-        <meshBasicMaterial
-          color="#000000"
-          transparent
-          opacity={0.35}
-        />
+      {/* Soft contact shadow */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.3, 0]}>
+        <circleGeometry args={[0.75, 48]} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.35} />
       </mesh>
     </group>
   )

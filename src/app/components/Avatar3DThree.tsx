@@ -7,55 +7,27 @@ import CuteGirlAvatar from './three/CuteGirlAvatar'
 
 /**
  * Avatar3DThree
- * Canvas wrapper for the chibi avatar. Adds a themed backdrop (purple
- * radial glow + subtle dotted ring) so the 3D character feels "placed"
- * inside the dark hero instead of floating in a void.
+ * Compact canvas wrapper for the chibi avatar designed to sit
+ * inside a ProfileCard. The card itself provides the framing
+ * (rounded corners, glow, dark-purple backdrop), so this component
+ * only renders the 3D scene — no decorative rings here.
  */
 export default function Avatar3DThree() {
   const [loading, setLoading] = useState(true)
 
   return (
-    <div className="relative w-full h-[420px] sm:h-[480px] lg:h-[540px] select-none">
-      {/* Purple radial glow behind the avatar */}
+    <div className="relative w-full aspect-square select-none">
+      {/* soft purple glow under the character */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(circle at 50% 55%, rgba(139,109,245,0.28), transparent 60%)',
-        }}
-      />
-      {/* Decorative rotating ring */}
-      <div
-        aria-hidden
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          width: '78%',
-          aspectRatio: '1 / 1',
-          border: '1px dashed rgba(139,109,245,0.22)',
-          animation: 'v0-avatar-spin 40s linear infinite',
-        }}
-      />
-      <div
-        aria-hidden
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          width: '56%',
-          aspectRatio: '1 / 1',
-          border: '1px solid rgba(45,212,191,0.15)',
-          animation: 'v0-avatar-spin-rev 28s linear infinite',
+            'radial-gradient(ellipse 60% 40% at 50% 85%, rgba(139,109,245,0.38), transparent 70%)',
         }}
       />
 
       <style>{`
-        @keyframes v0-avatar-spin {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to   { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        @keyframes v0-avatar-spin-rev {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to   { transform: translate(-50%, -50%) rotate(-360deg); }
-        }
         @keyframes v0-avatar-fade-in {
           from { opacity: 0; }
           to   { opacity: 1; }
@@ -66,7 +38,7 @@ export default function Avatar3DThree() {
 
       <Canvas
         dpr={[1, 2]}
-        camera={{ position: [0, 0.2, 4.2], fov: 38 }}
+        camera={{ position: [0, 0.35, 3.2], fov: 34 }}
         style={{
           width: '100%',
           height: '100%',
@@ -90,7 +62,7 @@ export default function Avatar3DThree() {
 function Loading() {
   return (
     <div className="absolute inset-0 flex justify-center items-center">
-      <Skeleton className="size-32 rounded-full" />
+      <Skeleton className="size-24 rounded-full" />
     </div>
   )
 }
