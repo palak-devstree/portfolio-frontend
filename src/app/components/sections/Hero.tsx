@@ -377,17 +377,8 @@ export function Hero({ profile }: HeroProps) {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="relative flex items-center justify-center lg:justify-start order-2 lg:order-1"
           >
-            <div className="relative">
+            <div className="relative w-full max-w-[520px]">
               <Avatar3DThree />
-              {/* Decorative ring around avatar */}
-              <div
-                aria-hidden
-                className="absolute inset-0 rounded-full pointer-events-none"
-                style={{
-                  border: '2px solid rgba(107, 81, 224, 0.15)',
-                  animation: 'v0-scan 4s linear infinite',
-                }}
-              />
             </div>
           </motion.div>
 
