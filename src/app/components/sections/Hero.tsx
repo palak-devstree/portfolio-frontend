@@ -424,7 +424,6 @@ export function Hero({ profile }: HeroProps) {
           style={{ fontSize: '18px', color: '#b8b8c4' }}
         >
           {typed}
-          <BlockCursor />
         </p>
 
         {/* Live AI metrics strip — the "engineer" vibe */}
