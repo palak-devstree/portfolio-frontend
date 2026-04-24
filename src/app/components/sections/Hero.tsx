@@ -392,7 +392,6 @@ export function Hero({ profile }: HeroProps) {
           >
             {profile.full_name}
           </span>
-          <BlockCursor size="lg" />
         </motion.h1>
 
         {/* Role line */}
