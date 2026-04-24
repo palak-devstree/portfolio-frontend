@@ -143,24 +143,6 @@ export function Navbar({ items, brandName = 'portfolio.ops', resumeUrl }: Navbar
                 ./resume
               </a>
             )}
-            <div
-              className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded"
-              style={{
-                backgroundColor: '#14141c',
-                border: '1px solid #1f1f28',
-              }}
-            >
-              <span
-                className="w-1.5 h-1.5 rounded-full animate-pulse"
-                style={{ backgroundColor: '#2dd4bf' }}
-              />
-              <span
-                className="font-mono uppercase"
-                style={{ fontSize: '10px', color: '#757584', letterSpacing: '0.15em' }}
-              >
-                online
-              </span>
-            </div>
           </div>
         </div>
 

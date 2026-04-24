@@ -1,4 +1,13 @@
-import { Activity, Code, Eye, FileText, FlaskConical, Layers } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { motion } from 'motion/react'
+import {
+  Activity,
+  BrainCircuit,
+  Eye,
+  FileText,
+  FlaskConical,
+  Layers,
+} from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useCountUp } from '../../../lib/useCountUp'
 import type { DashboardResponse, ProfileResponse } from '../../../lib/types'
@@ -6,18 +15,51 @@ import type { DashboardResponse, ProfileResponse } from '../../../lib/types'
 interface StatCardProps {
   label: string
   target: number
-  decimals?: number
   suffix?: string
   icon: ReactNode
+  delay?: number
 }
 
-function StatCard({ label, target, decimals = 0, suffix = '', icon }: StatCardProps) {
-  const [value, setRef] = useCountUp(target, 1400, decimals)
+/* Fakes a live signal bar: random segments pulse. */
+function Signal() {
+  const [ticks, setTicks] = useState<number[]>(() =>
+    Array.from({ length: 12 }, () => Math.random()),
+  )
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setTicks((prev) =>
+        prev.map((v) => Math.max(0.15, Math.min(1, v + (Math.random() - 0.5) * 0.5))),
+      )
+    }, 600)
+    return () => window.clearInterval(id)
+  }, [])
+  return (
+    <div className="flex items-end gap-[2px] h-3 mt-3">
+      {ticks.map((v, i) => (
+        <div
+          key={i}
+          className="flex-1 rounded-sm transition-all duration-500"
+          style={{
+            height: `${Math.max(18, v * 100)}%`,
+            backgroundColor: `rgba(139, 109, 245, ${0.25 + v * 0.55})`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+function StatCard({ label, target, suffix = '', icon, delay = 0 }: StatCardProps) {
+  const [value, setRef] = useCountUp(target, 1400, 0)
 
   return (
-    <div
-      ref={setRef}
-      className="rounded-lg p-5 transition-all duration-200 group"
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.45, delay }}
+      ref={setRef as unknown as React.Ref<HTMLDivElement>}
+      className="relative rounded-lg p-5 transition-all duration-200 group overflow-hidden"
       style={{
         backgroundColor: '#14141c',
         border: '1px solid #1f1f28',
@@ -25,7 +67,7 @@ function StatCard({ label, target, decimals = 0, suffix = '', icon }: StatCardPr
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = '#6b51e0'
         e.currentTarget.style.transform = 'translateY(-2px)'
-        e.currentTarget.style.boxShadow = '0 0 24px rgba(107,81,224,0.15)'
+        e.currentTarget.style.boxShadow = '0 0 24px rgba(107,81,224,0.18)'
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = '#1f1f28'
@@ -33,17 +75,27 @@ function StatCard({ label, target, decimals = 0, suffix = '', icon }: StatCardPr
         e.currentTarget.style.boxShadow = 'none'
       }}
     >
-      <div className="flex items-center justify-between mb-4">
+      {/* Top-right corner accent */}
+      <div
+        aria-hidden
+        className="absolute top-0 right-0 w-24 h-24 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(circle at top right, rgba(107,81,224,0.28), transparent 70%)',
+        }}
+      />
+
+      <div className="flex items-center justify-between mb-4 relative">
         <span
           className="font-mono uppercase tracking-[0.18em]"
           style={{ fontSize: '10px', color: '#757584' }}
         >
           {label}
         </span>
-        <div style={{ color: '#6b51e0' }}>{icon}</div>
+        <div style={{ color: '#8b6df5' }}>{icon}</div>
       </div>
       <div
-        className="font-mono"
+        className="font-mono relative"
         style={{
           fontSize: '36px',
           color: '#e2e2e8',
@@ -53,12 +105,13 @@ function StatCard({ label, target, decimals = 0, suffix = '', icon }: StatCardPr
       >
         {value}
         {suffix && (
-          <span style={{ color: '#6b51e0', fontSize: '22px', marginLeft: 2 }}>
+          <span style={{ color: '#8b6df5', fontSize: '22px', marginLeft: 2 }}>
             {suffix}
           </span>
         )}
       </div>
-    </div>
+      <Signal />
+    </motion.div>
   )
 }
 
@@ -70,23 +123,23 @@ interface StatsProps {
 export function Stats({ dashboard, profile }: StatsProps) {
   const items = [
     {
-      label: 'Years Shipped',
+      label: 'Years in prod',
       target: profile.years_of_experience,
       suffix: '+',
       icon: <Activity className="w-4 h-4" />,
     },
     {
-      label: 'Projects',
+      label: 'AI systems',
       target: dashboard.projects_count,
-      icon: <Code className="w-4 h-4" />,
+      icon: <BrainCircuit className="w-4 h-4" />,
     },
     {
-      label: 'System Designs',
+      label: 'Architectures',
       target: dashboard.system_designs_count,
       icon: <Layers className="w-4 h-4" />,
     },
     {
-      label: 'Blog Posts',
+      label: 'Writeups',
       target: dashboard.blog_posts_count,
       icon: <FileText className="w-4 h-4" />,
     },
@@ -96,7 +149,7 @@ export function Stats({ dashboard, profile }: StatsProps) {
       icon: <FlaskConical className="w-4 h-4" />,
     },
     {
-      label: 'Total Views',
+      label: 'Views tracked',
       target: dashboard.total_views,
       icon: <Eye className="w-4 h-4" />,
     },
@@ -104,8 +157,8 @@ export function Stats({ dashboard, profile }: StatsProps) {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-      {items.map((item) => (
-        <StatCard key={item.label} {...item} />
+      {items.map((item, i) => (
+        <StatCard key={item.label} {...item} delay={i * 0.06} />
       ))}
     </div>
   )

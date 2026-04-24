@@ -10,7 +10,6 @@ import { SystemDesignsSection } from '../components/sections/SystemDesigns'
 import { LabSection } from '../components/sections/Lab'
 import { AboutSection } from '../components/sections/About'
 import { ContactSection } from '../components/sections/Contact'
-import { LogPanel } from '../components/LogPanel'
 import { AssistantButton } from '../components/AssistantButton'
 import { usePortfolioData } from '../../lib/usePortfolioData'
 
@@ -132,12 +131,6 @@ export function Home() {
             subtitle="open inbox / fast reply"
           />
           <ContactSection profile={profile} />
-        </section>
-
-        <section className="py-10">
-          <Reveal>
-            <LogPanel title="System Log" />
-          </Reveal>
         </section>
 
         {/* Footer */}
