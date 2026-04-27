@@ -9,19 +9,19 @@ interface AboutSectionProps {
 export function AboutSection({ profile }: AboutSectionProps) {
   const focusColumns = [
     {
-      title: 'Learning',
+      title: profile.heading_learning || 'Currently Learning',
       items: profile.current_learning,
       icon: <Compass className="w-4 h-4" />,
       accent: '#6b51e0',
     },
     {
-      title: 'Building',
+      title: profile.heading_building || 'Currently Building',
       items: profile.current_building,
       icon: <Hammer className="w-4 h-4" />,
       accent: '#2dd4bf',
     },
     {
-      title: 'Exploring',
+      title: profile.heading_exploring || 'Currently Exploring',
       items: profile.current_exploring,
       icon: <Sparkles className="w-4 h-4" />,
       accent: '#fb923c',
@@ -82,22 +82,32 @@ export function AboutSection({ profile }: AboutSectionProps) {
             >
               <span style={{ color: '#6b51e0' }}>$</span> ls skills/
             </div>
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              {profile.skills.map((skill) => (
-                <span
-                  key={skill}
-                  className="px-2 py-0.5 rounded"
-                  style={{
-                    fontSize: '11px',
-                    backgroundColor: '#14141c',
-                    border: '1px solid #1f1f28',
-                    color: '#b8b8c4',
-                  }}
+            {profile.skills.map((cat) => (
+              <div key={cat.category} className="mt-3">
+                <div
+                  className="font-mono mb-1.5"
+                  style={{ fontSize: '10px', color: '#6b51e0', textTransform: 'uppercase', letterSpacing: '0.15em' }}
                 >
-                  {skill}
-                </span>
-              ))}
-            </div>
+                  {cat.category}/
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {cat.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="px-2 py-0.5 rounded"
+                      style={{
+                        fontSize: '11px',
+                        backgroundColor: '#14141c',
+                        border: '1px solid #1f1f28',
+                        color: '#b8b8c4',
+                      }}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </Reveal>
@@ -120,7 +130,7 @@ export function AboutSection({ profile }: AboutSectionProps) {
                   className="font-mono uppercase tracking-[0.2em]"
                   style={{ fontSize: '10px', color: '#757584' }}
                 >
-                  Currently {col.title.toLowerCase()}
+                  {col.title}
                 </span>
               </div>
               <ul className="space-y-1.5">

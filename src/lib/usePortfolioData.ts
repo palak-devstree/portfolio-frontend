@@ -6,6 +6,9 @@ import {
   systemDesignsAPI,
   labAPI,
   dashboardAPI,
+  educationAPI,
+  certificatesAPI,
+  experienceAPI,
 } from './api'
 import {
   fallbackProfile,
@@ -14,6 +17,9 @@ import {
   fallbackSystemDesigns,
   fallbackLabExperiments,
   fallbackDashboard,
+  fallbackEducation,
+  fallbackCertificates,
+  fallbackExperience,
 } from './fallbackData'
 import type {
   ProfileResponse,
@@ -22,6 +28,9 @@ import type {
   SystemDesignResponse,
   LabExperimentResponse,
   DashboardResponse,
+  EducationResponse,
+  CertificateResponse,
+  ExperienceResponse,
 } from './types'
 
 export interface PortfolioData {
@@ -30,6 +39,9 @@ export interface PortfolioData {
   posts: BlogPostResponse[]
   systemDesigns: SystemDesignResponse[]
   experiments: LabExperimentResponse[]
+  education: EducationResponse[]
+  certificates: CertificateResponse[]
+  experience: ExperienceResponse[]
   dashboard: DashboardResponse
   loading: boolean
 }
@@ -67,6 +79,9 @@ export function usePortfolioData(): PortfolioData {
     posts: fallbackBlogPosts,
     systemDesigns: fallbackSystemDesigns,
     experiments: fallbackLabExperiments,
+    education: fallbackEducation,
+    certificates: fallbackCertificates,
+    experience: fallbackExperience,
     dashboard: fallbackDashboard,
     loading: true,
   })
@@ -75,7 +90,7 @@ export function usePortfolioData(): PortfolioData {
     let cancelled = false
 
     async function load() {
-      const [profileR, projectsR, postsR, designsR, labR, dashR] =
+      const [profileR, projectsR, postsR, designsR, labR, dashR, eduR, certR, expR] =
         await Promise.allSettled([
           profileAPI.get(),
           projectsAPI.list(),
@@ -83,6 +98,9 @@ export function usePortfolioData(): PortfolioData {
           systemDesignsAPI.list(),
           labAPI.list(),
           dashboardAPI.get(),
+          educationAPI.list(),
+          certificatesAPI.list(),
+          experienceAPI.list(),
         ])
 
       if (cancelled) return
@@ -114,6 +132,18 @@ export function usePortfolioData(): PortfolioData {
                 fallbackLabExperiments,
               )
             : fallbackLabExperiments,
+        education:
+          eduR.status === 'fulfilled'
+            ? pickArray<EducationResponse>(eduR.value, fallbackEducation)
+            : fallbackEducation,
+        certificates:
+          certR.status === 'fulfilled'
+            ? pickArray<CertificateResponse>(certR.value, fallbackCertificates)
+            : fallbackCertificates,
+        experience:
+          expR.status === 'fulfilled'
+            ? pickArray<ExperienceResponse>(expR.value, fallbackExperience)
+            : fallbackExperience,
         dashboard:
           dashR.status === 'fulfilled'
             ? pickObject<DashboardResponse>(dashR.value, fallbackDashboard)

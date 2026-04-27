@@ -432,7 +432,7 @@ export function ContactSection({ profile }: ContactSectionProps) {
                 className="font-mono"
                 style={{ fontSize: '11px', color: '#4a4a58' }}
               >
-                // responses usually within 72h
+                // {profile.contact_response_note || 'responses usually within 72h'}
               </motion.div>
             )}
             {status === 'sending' && (

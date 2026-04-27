@@ -2,6 +2,11 @@
 // API response types — match the backend shapes exactly.
 // ============================================================================
 
+export interface SkillCategory {
+  category: string
+  skills: string[]
+}
+
 export interface ProfileResponse {
   id?: number
   full_name: string
@@ -9,7 +14,7 @@ export interface ProfileResponse {
   tagline: string
   years_of_experience: number
   professional_summary: string
-  skills: string[]
+  skills: SkillCategory[]
 
   email?: string
   phone?: string
@@ -25,10 +30,30 @@ export interface ProfileResponse {
   show_system_designs: boolean
   show_lab: boolean
   show_about: boolean
+  show_education: boolean
+  show_certificates: boolean
+  show_experience: boolean
 
   current_learning: string[]
   current_building: string[]
   current_exploring: string[]
+
+  // Site copy — customisable strings
+  navbar_brand?: string
+  hero_badge?: string
+  hero_cluster_label?: string
+  subtitle_projects?: string
+  subtitle_writing?: string
+  subtitle_designs?: string
+  subtitle_lab?: string
+  subtitle_about?: string
+  subtitle_contact?: string
+  contact_response_note?: string
+  
+  // About section headings
+  heading_learning?: string
+  heading_building?: string
+  heading_exploring?: string
 
   created_at?: string
   updated_at?: string
@@ -114,4 +139,51 @@ export interface ContactMessageCreate {
   email: string
   subject: string
   message: string
+}
+
+export interface EducationResponse {
+  id: number
+  institution: string
+  degree: string
+  field_of_study?: string
+  start_date?: string
+  end_date?: string
+  description?: string
+  description_points: string[]
+  location?: string
+  display_order: number
+  created_at?: string
+  updated_at?: string
+}
+
+export interface CertificateResponse {
+  id: number
+  title: string
+  issuer: string
+  issue_date?: string
+  expiry_date?: string
+  credential_id?: string
+  credential_url?: string
+  image_url?: string
+  description?: string
+  display_order: number
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ExperienceResponse {
+  id: number
+  company: string
+  position: string
+  company_url?: string
+  location?: string
+  start_date?: string
+  end_date?: string
+  description?: string
+  description_points: string[]
+  technologies: string[]
+  project_urls: string[]
+  display_order: number
+  created_at?: string
+  updated_at?: string
 }

@@ -12,8 +12,7 @@ import {
   DialogTitle,
 } from '@/app/components/ui/dialog';
 import { Mail, MailOpen, Trash2, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+import { contactAPI } from '@/lib/api';
 
 interface ContactMessage {
   id: number;
@@ -40,25 +39,12 @@ export default function ContactMessagesManager() {
     setLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem('admin_token');
-      const url = showUnreadOnly
-        ? `${API_BASE_URL}/api/v1/admin/contact?unread_only=true`
-        : `${API_BASE_URL}/api/v1/admin/contact`;
-
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await contactAPI.list({ 
+        unread_only: showUnreadOnly 
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch messages');
-      }
-
-      const data = await response.json();
-      setMessages(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setMessages(response.data);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || err.message || 'Failed to fetch messages');
     } finally {
       setLoading(false);
     }
@@ -70,69 +56,30 @@ export default function ContactMessagesManager() {
 
   const handleMarkAsRead = async (messageId: number, isRead: boolean) => {
     try {
-      const token = localStorage.getItem('admin_token');
-      const response = await fetch(`${API_BASE_URL}/api/v1/admin/contact/${messageId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ is_read: isRead }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update message');
-      }
-
+      await contactAPI.update(messageId, { is_read: isRead });
       fetchMessages();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+    } catch (err: any) {
+      setError(err.response?.data?.detail || err.message || 'Failed to update message');
     }
   };
 
   const handleMarkAsReplied = async (messageId: number, isReplied: boolean) => {
     try {
-      const token = localStorage.getItem('admin_token');
-      const response = await fetch(`${API_BASE_URL}/api/v1/admin/contact/${messageId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ is_replied: isReplied }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update message');
-      }
-
+      await contactAPI.update(messageId, { is_replied: isReplied });
       fetchMessages();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+    } catch (err: any) {
+      setError(err.response?.data?.detail || err.message || 'Failed to update message');
     }
   };
 
   const handleSaveNotes = async (messageId: number) => {
     try {
-      const token = localStorage.getItem('admin_token');
-      const response = await fetch(`${API_BASE_URL}/api/v1/admin/contact/${messageId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ admin_notes: adminNotes }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save notes');
-      }
-
+      await contactAPI.update(messageId, { admin_notes: adminNotes });
       fetchMessages();
       setSelectedMessage(null);
       setAdminNotes('');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+    } catch (err: any) {
+      setError(err.response?.data?.detail || err.message || 'Failed to save notes');
     }
   };
 
@@ -142,22 +89,11 @@ export default function ContactMessagesManager() {
     }
 
     try {
-      const token = localStorage.getItem('admin_token');
-      const response = await fetch(`${API_BASE_URL}/api/v1/admin/contact/${messageId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete message');
-      }
-
+      await contactAPI.delete(messageId);
       fetchMessages();
       setSelectedMessage(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+    } catch (err: any) {
+      setError(err.response?.data?.detail || err.message || 'Failed to delete message');
     }
   };
 

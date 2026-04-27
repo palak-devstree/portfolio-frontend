@@ -128,32 +128,46 @@ export function Stats({ dashboard, profile }: StatsProps) {
       suffix: '+',
       icon: <Activity className="w-4 h-4" />,
     },
-    {
-      label: 'AI systems',
+  ]
+
+  // Only show stats for enabled sections
+  if (profile.show_projects) {
+    items.push({
+      label: 'Projects',
       target: dashboard.projects_count,
       icon: <BrainCircuit className="w-4 h-4" />,
-    },
-    {
+    })
+  }
+
+  if (profile.show_system_designs) {
+    items.push({
       label: 'Architectures',
       target: dashboard.system_designs_count,
       icon: <Layers className="w-4 h-4" />,
-    },
-    {
+    })
+  }
+
+  if (profile.show_blog) {
+    items.push({
       label: 'Writeups',
       target: dashboard.blog_posts_count,
       icon: <FileText className="w-4 h-4" />,
-    },
-    {
+    })
+  }
+
+  if (profile.show_lab) {
+    items.push({
       label: 'Experiments',
       target: dashboard.lab_experiments_count,
       icon: <FlaskConical className="w-4 h-4" />,
-    },
-    {
-      label: 'Views tracked',
-      target: dashboard.total_views,
-      icon: <Eye className="w-4 h-4" />,
-    },
-  ]
+    })
+  }
+
+  items.push({
+    label: 'Views tracked',
+    target: dashboard.total_views,
+    icon: <Eye className="w-4 h-4" />,
+  })
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">

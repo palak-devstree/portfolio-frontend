@@ -75,4 +75,33 @@ export const chatbotAPI = {
 export const contactAPI = {
   send: (data: { name: string; email: string; subject: string; message: string }) =>
     api.post('/api/v1/contact', data),
+  list: (params?: { skip?: number; limit?: number; unread_only?: boolean }) =>
+    api.get('/api/v1/admin/contact', { params }),
+  get: (id: number) => api.get(`/api/v1/admin/contact/${id}`),
+  update: (id: number, data: any) => api.put(`/api/v1/admin/contact/${id}`, data),
+  delete: (id: number) => api.delete(`/api/v1/admin/contact/${id}`),
+};
+
+export const educationAPI = {
+  list: () => api.get('/api/v1/education'),
+  get: (id: number) => api.get(`/api/v1/education/${id}`),
+  create: (data: any) => api.post('/api/v1/education', data),
+  update: (id: number, data: any) => api.put(`/api/v1/education/${id}`, data),
+  delete: (id: number) => api.delete(`/api/v1/education/${id}`),
+};
+
+export const certificatesAPI = {
+  list: () => api.get('/api/v1/certificates'),
+  get: (id: number) => api.get(`/api/v1/certificates/${id}`),
+  create: (data: any) => api.post('/api/v1/certificates', data),
+  update: (id: number, data: any) => api.put(`/api/v1/certificates/${id}`, data),
+  delete: (id: number) => api.delete(`/api/v1/certificates/${id}`),
+};
+
+export const experienceAPI = {
+  list: () => api.get('/api/v1/experience'),
+  get: (id: number) => api.get(`/api/v1/experience/${id}`),
+  create: (data: any) => api.post('/api/v1/experience', data),
+  update: (id: number, data: any) => api.put(`/api/v1/experience/${id}`, data),
+  delete: (id: number) => api.delete(`/api/v1/experience/${id}`),
 };

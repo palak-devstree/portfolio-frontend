@@ -18,64 +18,61 @@ interface HeroProps {
   profile: ProfileResponse
 }
 
-/* Typewriter that cycles through a list of lines. */
-function useCyclingTypewriter(
-  lines: string[],
-  {
-    typeSpeedMs = 28,
-    pauseMs = 2200,
-    startDelay = 400,
-  }: { typeSpeedMs?: number; pauseMs?: number; startDelay?: number } = {},
-) {
-  const [out, setOut] = useState('')
-  const [lineIdx, setLineIdx] = useState(0)
+/* Stream a string one character at a time, then hold with cursor blinking. */
+function useStreamText(text: string, { speedMs = 18, startDelay = 300 } = {}) {
+  const [displayed, setDisplayed] = useState('')
+  const [done, setDone] = useState(false)
 
   useEffect(() => {
-    if (lines.length === 0) return
-    const line = lines[lineIdx % lines.length]
+    setDisplayed('')
+    setDone(false)
     let i = 0
-    setOut('')
-    const start = window.setTimeout(() => {
-      const tick = window.setInterval(() => {
+    const timeout = window.setTimeout(() => {
+      const interval = window.setInterval(() => {
         i += 1
-        setOut(line.slice(0, i))
-        if (i >= line.length) {
-          window.clearInterval(tick)
-          window.setTimeout(
-            () => setLineIdx((n) => (n + 1) % lines.length),
-            pauseMs,
-          )
+        setDisplayed(text.slice(0, i))
+        if (i >= text.length) {
+          window.clearInterval(interval)
+          setDone(true)
         }
-      }, typeSpeedMs)
-      return () => window.clearInterval(tick)
+      }, speedMs)
+      return () => window.clearInterval(interval)
     }, startDelay)
-    return () => window.clearTimeout(start)
-  }, [lineIdx, lines, pauseMs, typeSpeedMs, startDelay])
+    return () => window.clearTimeout(timeout)
+  }, [text, speedMs, startDelay])
 
-  return out
+  return { displayed, done }
 }
 
-/* Thin caret with smooth blink — uses em units so it scales with its container font. */
-function BlockCursor({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
-  const width = size === 'lg' ? '0.08em' : size === 'sm' ? '0.12em' : '0.1em'
-  const height = size === 'lg' ? '0.9em' : size === 'sm' ? '1em' : '1em'
-  const margin = size === 'lg' ? '0.1em' : '0.06em'
+/* Blinking cursor — only shown while streaming or after done */
+function StreamCursor() {
   return (
-    <span
-      aria-hidden
-      className="inline-block align-[-0.12em] rounded-[1px]"
-      style={{
-        width,
-        height,
-        marginLeft: margin,
-        background:
-          'linear-gradient(180deg, #a78bfa 0%, #6b51e0 100%)',
-        boxShadow: '0 0 14px rgba(139, 109, 245, 0.65)',
-        animation: 'v0-cursor-blink 1.05s steps(2, start) infinite',
-      }}
-    />
+    <>
+      <style>{`
+        @keyframes stream-blink {
+          0%, 49% { opacity: 1; }
+          50%, 100% { opacity: 0; }
+        }
+      `}</style>
+      <span
+        aria-hidden
+        style={{
+          display: 'inline-block',
+          width: '2px',
+          height: '1.1em',
+          marginLeft: '3px',
+          verticalAlign: 'text-bottom',
+          background: 'linear-gradient(180deg, #a78bfa 0%, #6b51e0 100%)',
+          boxShadow: '0 0 8px rgba(139, 109, 245, 0.7)',
+          borderRadius: '1px',
+          animation: 'stream-blink 1s steps(2, start) infinite',
+        }}
+      />
+    </>
   )
 }
+
+
 
 /* Magnetic hover wrapper — adds subtle pull toward cursor. */
 function Magnetic({
@@ -215,17 +212,7 @@ function Orb({
 }
 
 export function Hero({ profile }: HeroProps) {
-  const taglines = [
-    profile.tagline,
-    'Serving LLMs at scale — continuous batching, paged attention, quantized weights.',
-    'Hybrid retrieval over vector + keyword. Evals that actually track product quality.',
-    'From whiteboard sketch to 3AM pager — I ship the whole pipeline.',
-  ]
-  const typed = useCyclingTypewriter(taglines, {
-    typeSpeedMs: 22,
-    pauseMs: 2600,
-    startDelay: 600,
-  })
+  const { displayed, done } = useStreamText(profile.tagline, { speedMs: 18, startDelay: 350 })
 
   // Live-feeling metrics
   const tokensPerSec = useLiveMetric(1820, 260)
@@ -256,7 +243,8 @@ export function Hero({ profile }: HeroProps) {
   if (profile.website_url)
     socials.push({ href: profile.website_url, label: 'Website', Icon: Globe })
 
-  const marqueeStack = [...profile.skills, ...profile.skills]
+  const flatSkills = profile.skills.flatMap((cat) => cat.skills)
+  const marqueeStack = [...flatSkills, ...flatSkills]
 
   return (
     <section
@@ -267,10 +255,6 @@ export function Hero({ profile }: HeroProps) {
     >
       {/* Keyframes (injected once via style tag) */}
       <style>{`
-        @keyframes v0-cursor-blink {
-          0%, 49% { opacity: 1; }
-          50%, 100% { opacity: 0; }
-        }
         @keyframes v0-marquee {
           from { transform: translateX(0); }
           to { transform: translateX(-50%); }
@@ -353,7 +337,7 @@ export function Hero({ profile }: HeroProps) {
                 letterSpacing: '0.22em',
               }}
             >
-              AI · Backend · Infra
+              {profile.hero_badge || 'AI · Backend · Infra'}
             </span>
           </div>
 
@@ -361,7 +345,7 @@ export function Hero({ profile }: HeroProps) {
             className="hidden sm:inline-flex items-center gap-2 font-mono"
             style={{ fontSize: '11px', color: '#757584' }}
           >
-            <span>inference.cluster.us-west-2</span>
+            <span>{profile.hero_cluster_label || 'inference.cluster.us-west-2'}</span>
             <span style={{ color: '#4a4a58' }}>·</span>
             <span style={{ color: '#2dd4bf' }}>healthy</span>
           </div>
@@ -417,12 +401,13 @@ export function Hero({ profile }: HeroProps) {
           )}
         </motion.div>
 
-        {/* Typewriter tagline */}
+        {/* Streaming tagline */}
         <p
-          className="max-w-3xl mb-8 leading-relaxed min-h-[3.2em]"
+          className="max-w-3xl mb-8 leading-relaxed"
           style={{ fontSize: '18px', color: '#b8b8c4' }}
         >
-          {typed}
+          {displayed}
+          <StreamCursor />
         </p>
 
         {/* Live AI metrics strip — the "engineer" vibe */}

@@ -10,6 +10,9 @@ import type {
   SystemDesignResponse,
   LabExperimentResponse,
   DashboardResponse,
+  EducationResponse,
+  CertificateResponse,
+  ExperienceResponse,
 } from './types'
 
 export const fallbackProfile: ProfileResponse = {
@@ -22,26 +25,22 @@ export const fallbackProfile: ProfileResponse = {
   professional_summary:
     'AI backend engineer focused on shipping ML systems that survive contact with real traffic. I design inference platforms, retrieval pipelines, and evaluation harnesses — the infrastructure layer between a model checkpoint and a product your users actually feel. My favorite deploys are the boring ones.',
   skills: [
-    'Python',
-    'PyTorch',
-    'Transformers',
-    'vLLM',
-    'LangChain',
-    'LlamaIndex',
-    'Qdrant',
-    'Pinecone',
-    'Triton',
-    'ONNX',
-    'FastAPI',
-    'Go',
-    'Rust',
-    'PostgreSQL',
-    'Redis',
-    'Kafka',
-    'Kubernetes',
-    'AWS',
-    'GCP',
-    'gRPC',
+    {
+      category: 'AI / ML',
+      skills: ['PyTorch', 'Transformers', 'vLLM', 'LangChain', 'LlamaIndex', 'Triton', 'ONNX'],
+    },
+    {
+      category: 'Backend',
+      skills: ['Python', 'FastAPI', 'Go', 'Rust', 'gRPC'],
+    },
+    {
+      category: 'Data & Storage',
+      skills: ['PostgreSQL', 'Redis', 'Kafka', 'Qdrant', 'Pinecone'],
+    },
+    {
+      category: 'Infrastructure',
+      skills: ['Kubernetes', 'AWS', 'GCP', 'Docker'],
+    },
   ],
   email: 'alex@alexchen.dev',
   phone: '+1 (415) 555-0142',
@@ -51,11 +50,14 @@ export const fallbackProfile: ProfileResponse = {
   linkedin_url: 'https://linkedin.com/in/alexchen',
   twitter_url: 'https://twitter.com/alexchen',
   website_url: 'https://alexchen.dev',
-  show_blog: true,
+  show_blog: false,
   show_projects: true,
-  show_system_designs: true,
-  show_lab: true,
+  show_system_designs: false,
+  show_lab: false,
   show_about: true,
+  show_education: true,
+  show_certificates: true,
+  show_experience: true,
   current_learning: [
     'LLM fine-tuning and LoRA adapters',
     'Vector databases and hybrid retrieval',
@@ -74,6 +76,23 @@ export const fallbackProfile: ProfileResponse = {
     'WebAssembly on the edge',
     'Homomorphic encryption for private ML',
   ],
+
+  // Site copy
+  navbar_brand: 'alex.ops',
+  hero_badge: 'AI · Backend · Infra',
+  hero_cluster_label: 'inference.cluster.us-west-2',
+  subtitle_projects: 'backend systems, APIs, infrastructure',
+  subtitle_writing: 'long-form notes on systems & engineering',
+  subtitle_designs: 'architectures for real-world scale',
+  subtitle_lab: 'experiments, benchmarks & research',
+  subtitle_about: 'background, focus, stack',
+  subtitle_contact: 'open inbox / fast reply',
+  contact_response_note: 'responses usually within 72h',
+  
+  // About section headings
+  heading_learning: 'Currently Learning',
+  heading_building: 'Currently Building',
+  heading_exploring: 'Currently Exploring',
 }
 
 export const fallbackDashboard: DashboardResponse = {
@@ -415,5 +434,139 @@ export const fallbackLabExperiments: LabExperimentResponse[] = [
       'Event sourcing with an append-only store and materialized read projections for a ledger service.',
     stack: ['EventStoreDB', 'CQRS', 'Node.js'],
     status: 'experimenting',
+  },
+]
+
+export const fallbackEducation: EducationResponse[] = [
+  {
+    id: 1,
+    institution: 'Stanford University',
+    degree: 'M.S. Computer Science',
+    field_of_study: 'Distributed Systems',
+    start_date: '2018',
+    end_date: '2020',
+    description: '',
+    description_points: [
+      'Focused on distributed systems, database internals, and large-scale infrastructure',
+      'Thesis on consensus protocols in geo-replicated systems',
+      'Teaching assistant for CS 244 (Advanced Topics in Networking)',
+    ],
+    location: 'Stanford, CA',
+    display_order: 1,
+  },
+  {
+    id: 2,
+    institution: 'UC Berkeley',
+    degree: 'B.S. Computer Science',
+    field_of_study: 'Computer Science',
+    start_date: '2014',
+    end_date: '2018',
+    description: '',
+    description_points: [
+      'Core CS fundamentals with emphasis on algorithms, operating systems, and networking',
+      'Teaching assistant for CS 162 (Operating Systems)',
+      'Graduated with honors (GPA: 3.9/4.0)',
+    ],
+    location: 'Berkeley, CA',
+    display_order: 2,
+  },
+]
+
+export const fallbackCertificates: CertificateResponse[] = [
+  {
+    id: 1,
+    title: 'AWS Certified Solutions Architect – Professional',
+    issuer: 'Amazon Web Services',
+    issue_date: 'Jan 2025',
+    expiry_date: 'Jan 2028',
+    credential_id: 'AWS-PSA-12345',
+    credential_url: 'https://aws.amazon.com/verification',
+    image_url: 'https://images.credly.com/images/aws-certified-solutions-architect-professional.png',
+    description:
+      'Advanced AWS architecture certification covering high availability, disaster recovery, cost optimization, and security at scale.',
+    display_order: 1,
+  },
+  {
+    id: 2,
+    title: 'Certified Kubernetes Administrator (CKA)',
+    issuer: 'Cloud Native Computing Foundation',
+    issue_date: 'Sep 2024',
+    expiry_date: 'Sep 2027',
+    credential_id: 'LF-CKA-67890',
+    credential_url: 'https://training.linuxfoundation.org/certification/verify',
+    image_url: 'https://images.credly.com/images/cka-certified-kubernetes-administrator.png',
+    description:
+      'Hands-on Kubernetes administration certification covering cluster setup, networking, storage, security, and troubleshooting.',
+    display_order: 2,
+  },
+  {
+    id: 3,
+    title: 'Google Cloud Professional Data Engineer',
+    issuer: 'Google Cloud',
+    issue_date: 'Mar 2024',
+    expiry_date: 'Mar 2026',
+    credential_id: 'GCP-PDE-11223',
+    credential_url: 'https://www.credential.net/verify',
+    image_url: 'https://images.credly.com/images/gcp-professional-data-engineer.png',
+    description:
+      'Data engineering certification covering BigQuery, Dataflow, Pub/Sub, and building scalable data pipelines on GCP.',
+    display_order: 3,
+  },
+]
+
+export const fallbackExperience: ExperienceResponse[] = [
+  {
+    id: 1,
+    company: 'Anthropic',
+    position: 'Senior Backend Engineer',
+    company_url: 'https://anthropic.com',
+    location: 'San Francisco, CA',
+    start_date: 'Jan 2024',
+    end_date: 'Present',
+    description: '',
+    description_points: [
+      'Building inference infrastructure for Claude',
+      'Designed and shipped the multi-tenant serving platform handling 100M+ requests/day with p99 latency under 200ms',
+      'Led the migration from monolithic to microservices architecture, reducing deployment time from 2 hours to 8 minutes',
+    ],
+    technologies: ['Python', 'FastAPI', 'Kubernetes', 'Redis', 'PostgreSQL', 'gRPC'],
+    project_urls: ['https://anthropic.com/claude'],
+    display_order: 1,
+  },
+  {
+    id: 2,
+    company: 'Stripe',
+    position: 'Backend Engineer',
+    company_url: 'https://stripe.com',
+    location: 'San Francisco, CA',
+    start_date: 'Jun 2021',
+    end_date: 'Dec 2023',
+    description: '',
+    description_points: [
+      'Worked on the payments infrastructure team',
+      'Built distributed rate limiting system handling 50k req/s with sub-millisecond latency',
+      'Designed and implemented the event-driven notification pipeline processing 10M events/day with exactly-once delivery guarantees',
+    ],
+    technologies: ['Ruby', 'Go', 'Redis', 'Kafka', 'PostgreSQL', 'AWS'],
+    project_urls: ['https://stripe.com/docs/api'],
+    display_order: 2,
+  },
+  {
+    id: 3,
+    company: 'Airbnb',
+    position: 'Software Engineer',
+    company_url: 'https://airbnb.com',
+    location: 'San Francisco, CA',
+    start_date: 'Jul 2020',
+    end_date: 'May 2021',
+    description: '',
+    description_points: [
+      'Joined the search infrastructure team',
+      'Optimized Elasticsearch queries reducing p95 latency by 40%',
+      'Built the A/B testing framework for search ranking experiments, enabling data-driven improvements to search relevance',
+    ],
+    technologies: ['Java', 'Elasticsearch', 'Kafka', 'MySQL', 'Kubernetes'],
+    project_urls: [],
+    display_order: 3,
   },
 ]

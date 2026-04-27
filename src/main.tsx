@@ -10,6 +10,8 @@ import { AdminDashboard } from './app/pages/admin/AdminDashboard';
 import { ProfileEditor } from './app/pages/admin/ProfileEditor';
 import { ProjectsManager } from './app/pages/admin/ProjectsManager';
 import { BlogManager } from './app/pages/admin/BlogManager';
+import { SystemDesignsManager } from './app/pages/admin/SystemDesignsManager';
+import { LabManager } from './app/pages/admin/LabManager';
 import ContactMessagesManager from './app/pages/admin/ContactMessagesManager';
 
 import './styles/index.css';
@@ -30,12 +32,14 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/about" element={<Navigate to="/#about" replace />} />
           <Route path="/contact" element={<Navigate to="/#contact" replace />} />
 
-          {/* Admin routes — untouched */}
+          {/* Admin routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/profile" element={<ProfileEditor />} />
           <Route path="/admin/projects" element={<ProjectsManager />} />
           <Route path="/admin/blog" element={<BlogManager />} />
+          <Route path="/admin/system-designs" element={<SystemDesignsManager />} />
+          <Route path="/admin/lab" element={<LabManager />} />
           <Route path="/admin/contact" element={<ContactMessagesManager />} />
 
           {/* Catch all */}

@@ -10,11 +10,14 @@ import { SystemDesignsSection } from '../components/sections/SystemDesigns'
 import { LabSection } from '../components/sections/Lab'
 import { AboutSection } from '../components/sections/About'
 import { ContactSection } from '../components/sections/Contact'
+import { EducationSection } from '../components/sections/Education'
+import { CertificatesSection } from '../components/sections/Certificates'
+import { ExperienceSection } from '../components/sections/Experience'
 import { AssistantButton } from '../components/AssistantButton'
 import { usePortfolioData } from '../../lib/usePortfolioData'
 
 export function Home() {
-  const { profile, projects, posts, systemDesigns, experiments, dashboard } =
+  const { profile, projects, posts, systemDesigns, experiments, education, certificates, experience, dashboard } =
     usePortfolioData()
 
   // Build nav items dynamically, respecting feature flags.
@@ -25,15 +28,19 @@ export function Home() {
     if (profile.show_system_designs)
       items.push({ id: 'designs', label: 'Systems' })
     if (profile.show_lab) items.push({ id: 'lab', label: 'Lab' })
+    if (profile.show_experience) items.push({ id: 'experience', label: 'Experience' })
+    if (profile.show_education) items.push({ id: 'education', label: 'Education' })
+    if (profile.show_certificates) items.push({ id: 'certificates', label: 'Certificates' })
     if (profile.show_about) items.push({ id: 'about', label: 'About' })
     items.push({ id: 'contact', label: 'Contact' })
     return items
   }, [profile])
 
   const brand = useMemo(() => {
+    if (profile.navbar_brand) return profile.navbar_brand
     const first = profile.full_name.split(' ')[0]?.toLowerCase() ?? 'portfolio'
     return `${first}.ops`
-  }, [profile.full_name])
+  }, [profile.navbar_brand, profile.full_name])
 
   let sectionIndex = 0
   const nextIdx = () => `[${String(++sectionIndex).padStart(2, '0')}]`
@@ -74,7 +81,7 @@ export function Home() {
             <SectionHeader
               index={nextIdx()}
               title="Projects"
-              subtitle="backend systems, APIs, infrastructure"
+              subtitle={profile.subtitle_projects || 'backend systems, APIs, infrastructure'}
             />
             <ProjectsSection projects={projects} />
           </section>
@@ -85,7 +92,7 @@ export function Home() {
             <SectionHeader
               index={nextIdx()}
               title="Writing"
-              subtitle="long-form notes on systems & engineering"
+              subtitle={profile.subtitle_writing || 'long-form notes on systems & engineering'}
             />
             <WritingSection posts={posts} />
           </section>
@@ -96,7 +103,7 @@ export function Home() {
             <SectionHeader
               index={nextIdx()}
               title="System Designs"
-              subtitle="architectures for real-world scale"
+              subtitle={profile.subtitle_designs || 'architectures for real-world scale'}
             />
             <SystemDesignsSection designs={systemDesigns} />
           </section>
@@ -107,9 +114,42 @@ export function Home() {
             <SectionHeader
               index={nextIdx()}
               title="Lab"
-              subtitle="experiments, benchmarks & research"
+              subtitle={profile.subtitle_lab || 'experiments, benchmarks & research'}
             />
             <LabSection experiments={experiments} />
+          </section>
+        )}
+
+        {profile.show_experience && (
+          <section id="experience" className="py-14 scroll-mt-20">
+            <SectionHeader
+              index={nextIdx()}
+              title="Experience"
+              subtitle="professional journey & roles"
+            />
+            <ExperienceSection experience={experience} />
+          </section>
+        )}
+
+        {profile.show_education && (
+          <section id="education" className="py-14 scroll-mt-20">
+            <SectionHeader
+              index={nextIdx()}
+              title="Education"
+              subtitle="academic background & qualifications"
+            />
+            <EducationSection education={education} />
+          </section>
+        )}
+
+        {profile.show_certificates && (
+          <section id="certificates" className="py-14 scroll-mt-20">
+            <SectionHeader
+              index={nextIdx()}
+              title="Certificates"
+              subtitle="professional certifications & credentials"
+            />
+            <CertificatesSection certificates={certificates} />
           </section>
         )}
 
@@ -118,7 +158,7 @@ export function Home() {
             <SectionHeader
               index={nextIdx()}
               title="About"
-              subtitle="background, focus, stack"
+              subtitle={profile.subtitle_about || 'background, focus, stack'}
             />
             <AboutSection profile={profile} />
           </section>
@@ -128,7 +168,7 @@ export function Home() {
           <SectionHeader
             index={nextIdx()}
             title="Contact"
-            subtitle="open inbox / fast reply"
+            subtitle={profile.subtitle_contact || 'open inbox / fast reply'}
           />
           <ContactSection profile={profile} />
         </section>
