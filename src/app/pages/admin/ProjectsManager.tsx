@@ -240,10 +240,20 @@ export function ProjectsManager() {
                 <Label style={{ color: '#9d9db0' }}>Tech Stack (comma-separated)</Label>
                 <Input
                   value={form.stack.join(', ')}
-                  onChange={e => setForm({ ...form, stack: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                  onChange={e => {
+                    const items = e.target.value.split(',').map(s => s.trim());
+                    setForm({ ...form, stack: items });
+                  }}
+                  onBlur={e => {
+                    const cleaned = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                    setForm({ ...form, stack: cleaned });
+                  }}
                   placeholder="FastAPI, Redis, PostgreSQL, Docker"
                   style={{ backgroundColor: '#1a1a24', borderColor: '#1f1f28', color: '#e2e2e8' }}
                 />
+                <p className="text-xs mt-1" style={{ color: '#757584' }}>
+                  {form.stack.filter(s => s.trim()).length} technologies
+                </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>

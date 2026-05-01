@@ -8,9 +8,6 @@ import {
   Mail,
   MapPin,
   ArrowRight,
-  Cpu,
-  Zap,
-  Activity,
 } from 'lucide-react'
 import type { ProfileResponse } from '../../../lib/types'
 
@@ -114,65 +111,6 @@ function Magnetic({
   )
 }
 
-/* Live AI metrics — values drift to feel "live" without real data. */
-function useLiveMetric(
-  base: number,
-  amplitude: number,
-  intervalMs = 1600,
-  decimals = 0,
-) {
-  const [v, setV] = useState(base)
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      const delta = (Math.random() * 2 - 1) * amplitude
-      setV(Math.max(0, base + delta))
-    }, intervalMs)
-    return () => window.clearInterval(id)
-  }, [base, amplitude, intervalMs])
-  return decimals === 0 ? Math.round(v) : Number(v.toFixed(decimals))
-}
-
-function LiveMetric({
-  label,
-  value,
-  unit,
-  Icon,
-}: {
-  label: string
-  value: number | string
-  unit?: string
-  Icon: typeof Cpu
-}) {
-  return (
-    <div
-      className="flex items-center gap-2 px-3 py-2 rounded"
-      style={{
-        backgroundColor: '#0f0f17',
-        border: '1px solid #1f1f28',
-      }}
-    >
-      <Icon className="w-3.5 h-3.5" style={{ color: '#8b6df5' }} />
-      <div className="flex flex-col leading-tight">
-        <span
-          className="font-mono uppercase tracking-[0.18em]"
-          style={{ fontSize: '9px', color: '#757584' }}
-        >
-          {label}
-        </span>
-        <span
-          className="font-mono"
-          style={{ fontSize: '13px', color: '#e2e2e8' }}
-        >
-          {value}
-          {unit && (
-            <span style={{ color: '#757584', marginLeft: '3px' }}>{unit}</span>
-          )}
-        </span>
-      </div>
-    </div>
-  )
-}
-
 /* Animated gradient orb. */
 function Orb({
   className,
@@ -213,12 +151,6 @@ function Orb({
 
 export function Hero({ profile }: HeroProps) {
   const { displayed, done } = useStreamText(profile.tagline, { speedMs: 18, startDelay: 350 })
-
-  // Live-feeling metrics
-  const tokensPerSec = useLiveMetric(1820, 260)
-  const p95 = useLiveMetric(74, 9)
-  const qps = useLiveMetric(312, 40)
-  const gpu = useLiveMetric(58, 12)
 
   // Mouse-parallax for the grid
   const mx = useMotionValue(0)
@@ -409,23 +341,6 @@ export function Hero({ profile }: HeroProps) {
           {displayed}
           <StreamCursor />
         </p>
-
-        {/* Live AI metrics strip — the "engineer" vibe */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-8 max-w-3xl"
-        >
-          <LiveMetric
-            label="Tokens / sec"
-            value={tokensPerSec.toLocaleString()}
-            Icon={Zap}
-          />
-          <LiveMetric label="p95 latency" value={p95} unit="ms" Icon={Activity} />
-          <LiveMetric label="Queries / sec" value={qps} Icon={Activity} />
-          <LiveMetric label="GPU util" value={gpu} unit="%" Icon={Cpu} />
-        </motion.div>
 
         {/* CTAs */}
         <motion.div

@@ -21,41 +21,42 @@ api.interceptors.request.use((config) => {
 // API functions
 export const profileAPI = {
   get: () => api.get('/api/v1/profile'),
-  create: (data: any) => api.post('/api/v1/admin/profile', data),
-  update: (data: any) => api.put('/api/v1/admin/profile', data),
-  delete: () => api.delete('/api/v1/admin/profile'),
+  create: (data: any) => api.post('/api/v1/profile', data),
+  update: (data: any) => api.put('/api/v1/profile', data),
+  delete: () => api.delete('/api/v1/profile'),
+  updateToggles: (toggles: Record<string, boolean>) => api.patch('/api/v1/profile/toggles', toggles),
 };
 
 export const projectsAPI = {
   list: () => api.get('/api/v1/projects'),
   get: (id: number) => api.get(`/api/v1/projects/${id}`),
-  create: (data: any) => api.post('/api/v1/admin/projects', data),
-  update: (id: number, data: any) => api.put(`/api/v1/admin/projects/${id}`, data),
-  delete: (id: number) => api.delete(`/api/v1/admin/projects/${id}`),
+  create: (data: any) => api.post('/api/v1/projects', data),
+  update: (id: number, data: any) => api.put(`/api/v1/projects/${id}`, data),
+  delete: (id: number) => api.delete(`/api/v1/projects/${id}`),
 };
 
 export const blogAPI = {
   list: () => api.get('/api/v1/blog'),
   get: (id: number) => api.get(`/api/v1/blog/${id}`),
-  create: (data: any) => api.post('/api/v1/admin/blog', data),
-  update: (id: number, data: any) => api.put(`/api/v1/admin/blog/${id}`, data),
-  delete: (id: number) => api.delete(`/api/v1/admin/blog/${id}`),
+  create: (data: any) => api.post('/api/v1/blog', data),
+  update: (id: number, data: any) => api.put(`/api/v1/blog/${id}`, data),
+  delete: (id: number) => api.delete(`/api/v1/blog/${id}`),
 };
 
 export const systemDesignsAPI = {
   list: () => api.get('/api/v1/system-designs'),
   get: (id: number) => api.get(`/api/v1/system-designs/${id}`),
-  create: (data: any) => api.post('/api/v1/admin/system-designs', data),
-  update: (id: number, data: any) => api.put(`/api/v1/admin/system-designs/${id}`, data),
-  delete: (id: number) => api.delete(`/api/v1/admin/system-designs/${id}`),
+  create: (data: any) => api.post('/api/v1/system-designs', data),
+  update: (id: number, data: any) => api.put(`/api/v1/system-designs/${id}`, data),
+  delete: (id: number) => api.delete(`/api/v1/system-designs/${id}`),
 };
 
 export const labAPI = {
   list: () => api.get('/api/v1/lab'),
   get: (id: number) => api.get(`/api/v1/lab/${id}`),
-  create: (data: any) => api.post('/api/v1/admin/lab', data),
-  update: (id: number, data: any) => api.put(`/api/v1/admin/lab/${id}`, data),
-  delete: (id: number) => api.delete(`/api/v1/admin/lab/${id}`),
+  create: (data: any) => api.post('/api/v1/lab', data),
+  update: (id: number, data: any) => api.put(`/api/v1/lab/${id}`, data),
+  delete: (id: number) => api.delete(`/api/v1/lab/${id}`),
 };
 
 export const authAPI = {
@@ -65,11 +66,13 @@ export const authAPI = {
 
 export const dashboardAPI = {
   get: () => api.get('/api/v1/dashboard'),
+  refresh: () => api.post('/api/v1/dashboard/refresh'),
 };
 
 export const chatbotAPI = {
   query: (query: string, sessionId: string) => 
     api.post('/api/v1/chatbot/query', { query, session_id: sessionId }),
+  getDefaultQuestions: () => api.get('/api/v1/chatbot/default-questions'),
 };
 
 export const contactAPI = {
@@ -104,4 +107,16 @@ export const experienceAPI = {
   create: (data: any) => api.post('/api/v1/experience', data),
   update: (id: number, data: any) => api.put(`/api/v1/experience/${id}`, data),
   delete: (id: number) => api.delete(`/api/v1/experience/${id}`),
+};
+
+export const uploadsAPI = {
+  uploadImage: (file: File, imageType: 'diagram' | 'certificate' | 'education' | 'experience' | 'profile') => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post(`/api/v1/uploads/image?image_type=${imageType}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 };

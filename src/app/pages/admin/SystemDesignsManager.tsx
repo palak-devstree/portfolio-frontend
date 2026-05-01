@@ -7,6 +7,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { Alert, AlertDescription } from '../../components/ui/alert';
+import { ImageUpload } from '../../components/ui/ImageUpload';
 import { ArrowLeft, Plus, Edit, Trash2, X, Save, CheckCircle } from 'lucide-react';
 
 type ComplexityLevel = 'beginner' | 'intermediate' | 'advanced';
@@ -95,20 +96,53 @@ export function SystemDesignsManager() {
     e.preventDefault();
     setSaving(true);
     setError('');
+
+    // Clean up arrays before validation - remove empty items
+    const cleanedStack = form.stack.map(s => s.trim()).filter(Boolean);
+    const cleanedNotes = form.notes.map(n => n.trim()).filter(Boolean);
+
+    // Frontend validation
+    const errors: string[] = [];
+    if (form.title.length < 5) errors.push('Title must be at least 5 characters');
+    if (form.description.length < 20) errors.push('Description must be at least 20 characters');
+    if (cleanedStack.length < 2) errors.push('Stack must have at least 2 technologies');
+    if (cleanedNotes.length < 2) errors.push('Notes must have at least 2 items');
+    cleanedNotes.forEach((note, i) => {
+      if (note.length < 10) errors.push(`Note ${i + 1} must be at least 10 characters`);
+    });
+
+    if (errors.length > 0) {
+      setError(errors.join('. '));
+      setSaving(false);
+      return;
+    }
+
+    // Use cleaned data for submission
+    const submitData = { ...form, stack: cleanedStack, notes: cleanedNotes };
+
     try {
       if (editingId !== null) {
-        const res = await systemDesignsAPI.update(editingId, form);
+        const res = await systemDesignsAPI.update(editingId, submitData);
         setDesigns(designs.map(d => d.id === editingId ? res.data : d));
         setSuccess('System design updated successfully!');
       } else {
-        const res = await systemDesignsAPI.create(form);
+        const res = await systemDesignsAPI.create(submitData);
         setDesigns([...designs, res.data]);
         setSuccess('System design created successfully!');
       }
       setShowForm(false);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to save system design');
+      // Parse backend validation errors
+      if (err.response?.data?.detail && Array.isArray(err.response.data.detail)) {
+        const backendErrors = err.response.data.detail.map((e: any) => {
+          const field = e.loc?.slice(-1)[0] || 'field';
+          return `${field}: ${e.msg}`;
+        }).join('. ');
+        setError(backendErrors);
+      } else {
+        setError(err.response?.data?.detail || 'Failed to save system design');
+      }
     } finally {
       setSaving(false);
     }
@@ -184,33 +218,59 @@ export function SystemDesignsManager() {
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label style={{ color: '#9d9db0' }}>Title</Label>
+                <Label style={{ color: '#9d9db0' }}>
+                  Title <span style={{ color: '#ef4444' }}>*</span>
+                  <span className="text-xs ml-2" style={{ color: '#757584' }}>(min 5 chars)</span>
+                </Label>
                 <Input
                   value={form.title}
                   onChange={e => setForm({ ...form, title: e.target.value })}
                   required
+                  minLength={5}
                   style={{ backgroundColor: '#1a1a24', borderColor: '#1f1f28', color: '#e2e2e8' }}
                 />
               </div>
               <div>
-                <Label style={{ color: '#9d9db0' }}>Description</Label>
+                <Label style={{ color: '#9d9db0' }}>
+                  Description <span style={{ color: '#ef4444' }}>*</span>
+                  <span className="text-xs ml-2" style={{ color: '#757584' }}>(min 20 chars)</span>
+                </Label>
                 <Textarea
                   value={form.description}
                   onChange={e => setForm({ ...form, description: e.target.value })}
                   rows={3}
                   required
+                  minLength={20}
                   style={{ backgroundColor: '#1a1a24', borderColor: '#1f1f28', color: '#e2e2e8' }}
                 />
+                <p className="text-xs mt-1" style={{ color: '#757584' }}>
+                  {form.description.length}/20 characters
+                </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label style={{ color: '#9d9db0' }}>Tech Stack (comma-separated)</Label>
+                  <Label style={{ color: '#9d9db0' }}>
+                    Tech Stack <span style={{ color: '#ef4444' }}>*</span>
+                    <span className="text-xs ml-2" style={{ color: '#757584' }}>(min 2 items, comma-separated)</span>
+                  </Label>
                   <Input
                     value={form.stack.join(', ')}
-                    onChange={e => setForm({ ...form, stack: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                    onChange={e => {
+                      const items = e.target.value.split(',').map(s => s.trim());
+                      setForm({ ...form, stack: items });
+                    }}
+                    onBlur={e => {
+                      // Clean up on blur - remove empty items
+                      const cleanedStack = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                      setForm({ ...form, stack: cleanedStack });
+                    }}
                     placeholder="Kafka, PostgreSQL, Redis"
+                    required
                     style={{ backgroundColor: '#1a1a24', borderColor: '#1f1f28', color: '#e2e2e8' }}
                   />
+                  <p className="text-xs mt-1" style={{ color: '#757584' }}>
+                    {form.stack.filter(s => s.trim()).length} items
+                  </p>
                 </div>
                 <div>
                   <Label style={{ color: '#9d9db0' }}>Complexity Level</Label>
@@ -227,18 +287,45 @@ export function SystemDesignsManager() {
                 </div>
               </div>
               <div>
-                <Label style={{ color: '#9d9db0' }}>Notes (one per line)</Label>
+                <Label style={{ color: '#9d9db0' }}>
+                  Notes <span style={{ color: '#ef4444' }}>*</span>
+                  <span className="text-xs ml-2" style={{ color: '#757584' }}>(min 2 items, each 10+ chars, one per line)</span>
+                </Label>
                 <Textarea
                   value={form.notes.join('\n')}
-                  onChange={e => setForm({ ...form, notes: e.target.value.split('\n').map(s => s.trim()).filter(Boolean) })}
+                  onChange={e => {
+                    // Don't filter out empty strings during typing to allow newlines
+                    const lines = e.target.value.split('\n');
+                    setForm({ ...form, notes: lines });
+                  }}
+                  onBlur={e => {
+                    // Clean up on blur - remove empty lines and trim
+                    const cleanedNotes = e.target.value.split('\n').map(s => s.trim()).filter(Boolean);
+                    setForm({ ...form, notes: cleanedNotes });
+                  }}
                   rows={4}
-                  placeholder="Each line becomes a note bullet"
+                  required
+                  placeholder="Press Enter for new line&#10;Each line becomes a note bullet (min 10 characters each)"
                   style={{ backgroundColor: '#1a1a24', borderColor: '#1f1f28', color: '#e2e2e8' }}
                 />
+                <p className="text-xs mt-1" style={{ color: '#757584' }}>
+                  {form.notes.filter(n => n.trim()).length} notes (non-empty lines)
+                </p>
+              </div>
+              <div>
+                <ImageUpload
+                  value={form.diagram_url}
+                  onChange={(url) => setForm({ ...form, diagram_url: url })}
+                  imageType="diagram"
+                  label="Diagram Image"
+                />
+                <p className="text-xs mt-1" style={{ color: '#757584' }}>
+                  Upload a system design diagram or architecture image
+                </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label style={{ color: '#9d9db0' }}>Diagram URL (optional)</Label>
+                  <Label style={{ color: '#9d9db0' }}>Diagram URL (or use upload above)</Label>
                   <Input
                     value={form.diagram_url}
                     onChange={e => setForm({ ...form, diagram_url: e.target.value })}

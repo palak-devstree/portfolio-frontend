@@ -13,6 +13,9 @@ import { BlogManager } from './app/pages/admin/BlogManager';
 import { SystemDesignsManager } from './app/pages/admin/SystemDesignsManager';
 import { LabManager } from './app/pages/admin/LabManager';
 import ContactMessagesManager from './app/pages/admin/ContactMessagesManager';
+import { EducationManager } from './app/pages/admin/EducationManager';
+import { ExperienceManager } from './app/pages/admin/ExperienceManager';
+import { CertificatesManager } from './app/pages/admin/CertificatesManager';
 
 import './styles/index.css';
 
@@ -41,6 +44,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/admin/system-designs" element={<SystemDesignsManager />} />
           <Route path="/admin/lab" element={<LabManager />} />
           <Route path="/admin/contact" element={<ContactMessagesManager />} />
+          <Route path="/admin/education" element={<EducationManager />} />
+          <Route path="/admin/experience" element={<ExperienceManager />} />
+          <Route path="/admin/certificates" element={<CertificatesManager />} />
 
           {/* Catch all */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -37,6 +37,9 @@ export interface ProfileResponse {
   current_learning: string[]
   current_building: string[]
   current_exploring: string[]
+  
+  // Chatbot default questions
+  chatbot_default_questions?: string[]
 
   // Site copy — customisable strings
   navbar_brand?: string
@@ -131,6 +134,10 @@ export interface DashboardResponse {
   lab_experiments_count: number
   uptime_percentage: number
   total_views: number
+  // New live metrics
+  unique_users: number
+  chatbot_queries_count: number
+  contact_messages_count: number
   timestamp?: string
 }
 

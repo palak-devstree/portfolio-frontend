@@ -7,6 +7,9 @@ import {
   FileText,
   FlaskConical,
   Layers,
+  MessageSquare,
+  Mail,
+  Users,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useCountUp } from '../../../lib/useCountUp'
@@ -163,10 +166,23 @@ export function Stats({ dashboard, profile }: StatsProps) {
     })
   }
 
+  // New live metrics
   items.push({
-    label: 'Views tracked',
-    target: dashboard.total_views,
-    icon: <Eye className="w-4 h-4" />,
+    label: 'Unique users',
+    target: dashboard.unique_users,
+    icon: <Users className="w-4 h-4" />,
+  })
+
+  items.push({
+    label: 'Chatbot queries',
+    target: dashboard.chatbot_queries_count,
+    icon: <MessageSquare className="w-4 h-4" />,
+  })
+
+  items.push({
+    label: 'Contact messages',
+    target: dashboard.contact_messages_count,
+    icon: <Mail className="w-4 h-4" />,
   })
 
   return (

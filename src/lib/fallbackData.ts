@@ -102,6 +102,9 @@ export const fallbackDashboard: DashboardResponse = {
   lab_experiments_count: 9,
   uptime_percentage: 99.97,
   total_views: 12840,
+  unique_users: 3420,
+  chatbot_queries_count: 1580,
+  contact_messages_count: 47,
 }
 
 export const fallbackProjects: ProjectResponse[] = [

@@ -9,7 +9,7 @@ interface Message {
   ts: number
 }
 
-const SUGGESTIONS = [
+const DEFAULT_SUGGESTIONS = [
   'What does your AI stack look like?',
   'Walk me through your inference gateway',
   'How do you evaluate LLM features?',
@@ -44,11 +44,22 @@ export function AssistantButton() {
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
   const [sessionId, setSessionId] = useState('')
+  const [suggestions, setSuggestions] = useState<string[]>(DEFAULT_SUGGESTIONS)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     setSessionId(crypto.randomUUID())
+    // Fetch default questions from backend
+    chatbotAPI.getDefaultQuestions()
+      .then(res => {
+        if (res.data?.default_questions && res.data.default_questions.length > 0) {
+          setSuggestions(res.data.default_questions)
+        }
+      })
+      .catch(() => {
+        // Keep default suggestions on error
+      })
   }, [])
 
   useEffect(() => {
@@ -323,7 +334,7 @@ export function AssistantButton() {
                       Try asking
                     </div>
                     <div className="flex flex-col gap-2">
-                      {SUGGESTIONS.map((s, i) => (
+                      {suggestions.map((s, i) => (
                         <motion.button
                           key={s}
                           onClick={() => send(s)}

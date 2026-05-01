@@ -218,10 +218,20 @@ export function BlogManager() {
                   <Label style={{ color: '#9d9db0' }}>Tags (comma-separated)</Label>
                   <Input
                     value={form.tags.join(', ')}
-                    onChange={e => setForm({ ...form, tags: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                    onChange={e => {
+                      const items = e.target.value.split(',').map(s => s.trim());
+                      setForm({ ...form, tags: items });
+                    }}
+                    onBlur={e => {
+                      const cleaned = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                      setForm({ ...form, tags: cleaned });
+                    }}
                     placeholder="redis, golang, distributed-systems"
                     style={{ backgroundColor: '#1a1a24', borderColor: '#1f1f28', color: '#e2e2e8' }}
                   />
+                  <p className="text-xs mt-1" style={{ color: '#757584' }}>
+                    {form.tags.filter(t => t.trim()).length} tags
+                  </p>
                 </div>
               </div>
               <div>
